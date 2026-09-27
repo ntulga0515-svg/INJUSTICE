@@ -45,6 +45,7 @@ body::before{
         linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
         linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
     background-size:45px 45px;
+    z-index:-1;
 }
 
 /* NAV */
@@ -216,61 +217,164 @@ section{
     margin-top:10px;
 }
 
-/* CARDS */
+/* MEMBERS */
 
-.grid{
-    max-width:1100px;
+.members-grid{
+    max-width:1150px;
     margin:auto;
     display:grid;
     grid-template-columns:repeat(4,1fr);
     gap:18px;
 }
 
-.card{
+.member-card{
+    position:relative;
+    display:block;
+    text-decoration:none;
+    color:white;
+
     background:
         linear-gradient(
             145deg,
             rgba(20,17,25,.95),
             rgba(9,8,12,.95)
         );
+
     border:1px solid rgba(255,255,255,.07);
     border-radius:16px;
-    padding:25px;
-    transition:.25s;
-}
-
-.card:hover{
-    transform:translateY(-6px);
-    border-color:rgba(255,23,68,.4);
-    box-shadow:0 15px 50px rgba(0,0,0,.45);
-}
-
-/* MEMBERS */
-
-.member{
+    padding:28px 20px;
     text-align:center;
+
+    transition:.25s;
+    overflow:hidden;
 }
 
-.avatar{
-    width:80px;
-    height:80px;
-    object-fit:cover;
+.member-card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:2px;
+    background:linear-gradient(
+        90deg,
+        transparent,
+        var(--red),
+        var(--purple),
+        transparent
+    );
+    opacity:.7;
+}
+
+.member-card:hover{
+    transform:translateY(-7px);
+    border-color:rgba(255,23,68,.45);
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.5),
+        0 0 25px rgba(255,23,68,.08);
+}
+
+.member-avatar{
+    width:90px;
+    height:90px;
     border-radius:50%;
+    object-fit:cover;
+    margin:0 auto 16px;
+
     border:2px solid var(--red);
-    margin:0 auto 15px;
-    box-shadow:0 0 20px rgba(255,23,68,.25);
+
+    background:
+        radial-gradient(
+            circle,
+            #291020,
+            #0d0a11
+        );
+
+    box-shadow:
+        0 0 20px rgba(255,23,68,.25);
+
+    display:block;
 }
 
-.member h3{
+.member-name{
     font-family:'Orbitron';
-    font-size:16px;
-    margin-bottom:7px;
+    font-size:15px;
+    font-weight:800;
+    margin-bottom:8px;
+    word-break:break-word;
 }
 
-.role{
-    color:#a56cff;
-    font-size:13px;
+.member-role{
+    display:inline-block;
+    padding:5px 12px;
+    border-radius:20px;
+
+    background:rgba(139,53,255,.1);
+    border:1px solid rgba(139,53,255,.25);
+
+    color:#b783ff;
+    font-size:12px;
+    font-weight:700;
     letter-spacing:2px;
+}
+
+.member-steam{
+    margin-top:10px;
+    color:#666;
+    font-size:12px;
+}
+
+.role-owner .member-role{
+    color:#ff526f;
+    border-color:rgba(255,23,68,.35);
+    background:rgba(255,23,68,.08);
+}
+
+.role-admin .member-role{
+    color:#ff9c4a;
+    border-color:rgba(255,156,74,.3);
+    background:rgba(255,156,74,.08);
+}
+
+.role-mod .member-role{
+    color:#a56cff;
+    border-color:rgba(165,108,255,.3);
+    background:rgba(165,108,255,.08);
+}
+
+.role-member .member-role{
+    color:#62a8ff;
+    border-color:rgba(98,168,255,.25);
+    background:rgba(98,168,255,.07);
+}
+
+/* MEMBER BUTTON */
+
+.members-actions{
+    text-align:center;
+    margin-top:40px;
+}
+
+#allMembers{
+    display:none;
+}
+
+#backMembers{
+    display:none;
+}
+
+#memberLoading{
+    text-align:center;
+    color:#777;
+    font-size:17px;
+    padding:20px;
+}
+
+.empty-members{
+    grid-column:1/-1;
+    text-align:center;
+    color:#777;
+    padding:40px;
 }
 
 /* RULES */
@@ -383,21 +487,25 @@ footer strong{
 
 /* MOBILE */
 
+@media(max-width:900px){
+
+    .members-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+}
+
 @media(max-width:800px){
 
     nav ul{
         display:none;
     }
 
-    .grid{
-        grid-template-columns:1fr 1fr;
-    }
-
 }
 
 @media(max-width:500px){
 
-    .grid{
+    .members-grid{
         grid-template-columns:1fr;
     }
 
@@ -412,6 +520,10 @@ footer strong{
 
     section{
         padding:80px 5%;
+    }
+
+    .section-title h2{
+        font-size:32px;
     }
 
 }
@@ -509,92 +621,39 @@ CLAN SERVER
 
 </div>
 
-<div class="grid">
-
-<div class="card member">
-
-<img
-class="avatar"
-src="https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg?ex=6aba47e2&is=6ab8f662&hm=eaf8b4693a0a2a0f41b5681b99ec849d7569b63d3d69ef391221bb21ff209877&"
-alt="OWNER"
->
-
-<h3>OWNER</h3>
-
-<div class="role">
-ҮҮСГЭГЧ
+<div id="memberLoading">
+Гишүүдийг ачаалж байна...
 </div>
-
-</div>
-
-
-<div class="card member">
 
 <div
-class="avatar"
-style="
-display:grid;
-place-items:center;
-background:#17131d;
-font-size:28px;
-"
+class="members-grid"
+id="featuredMembers"
 >
-?
 </div>
-
-<h3>MEMBER</h3>
-
-<div class="role">
-АДМИН
-</div>
-
-</div>
-
-
-<div class="card member">
 
 <div
-class="avatar"
-style="
-display:grid;
-place-items:center;
-background:#17131d;
-font-size:28px;
-"
+class="members-grid"
+id="allMembers"
 >
-?
 </div>
 
-<h3>MEMBER</h3>
+<div class="members-actions">
 
-<div class="role">
-МОДЕРАТОР
-</div>
-
-</div>
-
-
-<div class="card member">
-
-<div
-class="avatar"
-style="
-display:grid;
-place-items:center;
-background:#17131d;
-font-size:28px;
-"
+<button
+id="showAllBtn"
+class="btn secondary"
+type="button"
 >
-?
-</div>
+БҮХ ГИШҮҮДИЙГ ХАРАХ
+</button>
 
-<h3>MEMBER</h3>
-
-<div class="role">
-ТОГЛОГЧ
-</div>
-
-</div>
+<button
+id="backMembers"
+class="btn secondary"
+type="button"
+>
+← БУЦАХ
+</button>
 
 </div>
 
@@ -763,57 +822,506 @@ DISCORD SERVER-Т НЭГДЭХ
 </footer>
 
 
-<!-- APPLICATION SYSTEM -->
-
 <script>
-const form = document.getElementById("applyForm");
-const status = document.getElementById("status");
 
-form.addEventListener("submit", async function(event) {
-    event.preventDefault();
+/* ==========================================
+   MEMBER SYSTEM
+========================================== */
 
-    status.style.color = "#aaa";
-    status.innerText = "Хүсэлт илгээж байна...";
+const featuredMembers =
+    document.getElementById("featuredMembers");
 
-    const discordName = document.getElementById("discordName").value;
-    const steam = document.getElementById("steam").value;
-    const rank = document.getElementById("rank").value;
-    const faceit = document.getElementById("faceit").value;
-    const reason = document.getElementById("reason").value;
+const allMembers =
+    document.getElementById("allMembers");
 
-    try {
-        const response = await fetch("/api/apply", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                discord: discordName,
-                steam: steam,
-                rank: rank,
-                faceit: faceit,
-                reason: reason
-            })
+const memberLoading =
+    document.getElementById("memberLoading");
+
+const showAllBtn =
+    document.getElementById("showAllBtn");
+
+const backMembers =
+    document.getElementById("backMembers");
+
+
+let members = [];
+
+
+/* ==========================================
+   DEFAULT AVATAR
+========================================== */
+
+function createAvatar(member){
+
+    if(member.avatar){
+        return member.avatar;
+    }
+
+    /*
+       Steam API зураг байхгүй үед
+       INJUSTICE logo ашиглана.
+    */
+
+    return "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg?ex=6aba47e2&is=6ab8f662&hm=eaf8b4693a0a2a0f41b5681b99ec849d7569b63d3d69ef391221bb21ff209877&";
+}
+
+
+/* ==========================================
+   ROLE NAME
+========================================== */
+
+function roleName(role){
+
+    const r = String(role || "MEMBER").toUpperCase();
+
+    if(r === "OWNER"){
+        return "OWNER";
+    }
+
+    if(r === "ADMIN"){
+        return "ADMIN";
+    }
+
+    if(r === "MOD"){
+        return "MODERATOR";
+    }
+
+    return "MEMBER";
+}
+
+
+/* ==========================================
+   MEMBER CARD
+========================================== */
+
+function createMemberCard(member){
+
+    const card =
+        document.createElement("a");
+
+    card.className =
+        "member-card role-" +
+        String(member.role || "MEMBER")
+            .toLowerCase();
+
+    card.href =
+        member.steam || "#";
+
+    card.target = "_blank";
+
+    card.rel =
+        "noopener noreferrer";
+
+    const avatar =
+        document.createElement("img");
+
+    avatar.className =
+        "member-avatar";
+
+    avatar.src =
+        createAvatar(member);
+
+    avatar.alt =
+        member.name || "INJUSTICE MEMBER";
+
+    avatar.onerror = function(){
+
+        this.src =
+            "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg?ex=6aba47e2&is=6ab8f662&hm=eaf8b4693a0a2a0f41b5681b99ec849d7569b63d3d69ef391221bb21ff209877&";
+
+    };
+
+
+    const name =
+        document.createElement("div");
+
+    name.className =
+        "member-name";
+
+    name.textContent =
+        member.name || "INJUSTICE MEMBER";
+
+
+    const role =
+        document.createElement("div");
+
+    role.className =
+        "member-role";
+
+    role.textContent =
+        roleName(member.role);
+
+
+    const steam =
+        document.createElement("div");
+
+    steam.className =
+        "member-steam";
+
+    steam.textContent =
+        "STEAM PROFILE";
+
+
+    card.appendChild(avatar);
+    card.appendChild(name);
+    card.appendChild(role);
+    card.appendChild(steam);
+
+    return card;
+}
+
+
+/* ==========================================
+   RENDER MEMBERS
+========================================== */
+
+function renderMembers(){
+
+    featuredMembers.innerHTML = "";
+    allMembers.innerHTML = "";
+
+    /*
+       Эхний хэсэг:
+       OWNER + ADMIN + MOD
+    */
+
+    const featured =
+        members.filter(member => {
+
+            const role =
+                String(member.role || "")
+                    .toUpperCase();
+
+            return (
+                role === "OWNER" ||
+                role === "ADMIN" ||
+                role === "MOD"
+            );
+
         });
 
-        const data = await response.json();
 
-        if (!response.ok) {
-            throw new Error(data.message || "Алдаа гарлаа");
+    /*
+       Бүх member
+    */
+
+    const all =
+        members;
+
+
+    if(featured.length === 0){
+
+        featuredMembers.innerHTML =
+            '<div class="empty-members">Гишүүн олдсонгүй.</div>';
+
+    } else {
+
+        featured.forEach(member => {
+
+            featuredMembers.appendChild(
+                createMemberCard(member)
+            );
+
+        });
+
+    }
+
+
+    if(all.length === 0){
+
+        allMembers.innerHTML =
+            '<div class="empty-members">Гишүүн олдсонгүй.</div>';
+
+    } else {
+
+        all.forEach(member => {
+
+            allMembers.appendChild(
+                createMemberCard(member)
+            );
+
+        });
+
+    }
+
+}
+
+
+/* ==========================================
+   LOAD MEMBERS FROM SERVER
+========================================== */
+
+async function loadMembers(){
+
+    try{
+
+        const response =
+            await fetch("/api/members", {
+                cache:"no-store"
+            });
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "Members API error"
+            );
+
         }
 
-        status.style.color = "#7cff8a";
-        status.innerText = "✓ Хүсэлт амжилттай илгээгдлээ!";
 
-        form.reset();
+        const data =
+            await response.json();
 
-    } catch (error) {
-        console.error(error);
 
-        status.style.color = "#ff1744";
-        status.innerText = "✕ Хүсэлт илгээгдэхэд алдаа гарлаа.";
+        if(
+            !data.success ||
+            !Array.isArray(data.members)
+        ){
+
+            throw new Error(
+                "Members data invalid"
+            );
+
+        }
+
+
+        members =
+            data.members;
+
+
+        renderMembers();
+
+
+        memberLoading.style.display =
+            "none";
+
+
+    }catch(error){
+
+        console.error(
+            "Member loading error:",
+            error
+        );
+
+
+        memberLoading.innerText =
+            "Гишүүдийг ачааллахад алдаа гарлаа.";
+
     }
-});
+
+}
+
+
+/* ==========================================
+   SHOW ALL
+========================================== */
+
+showAllBtn.addEventListener(
+    "click",
+    function(){
+
+        featuredMembers.style.display =
+            "none";
+
+        allMembers.style.display =
+            "grid";
+
+        showAllBtn.style.display =
+            "none";
+
+        backMembers.style.display =
+            "inline-block";
+
+        document.getElementById(
+            "members"
+        ).scrollIntoView({
+            behavior:"smooth"
+        });
+
+    }
+);
+
+
+/* ==========================================
+   BACK
+========================================== */
+
+backMembers.addEventListener(
+    "click",
+    function(){
+
+        allMembers.style.display =
+            "none";
+
+        featuredMembers.style.display =
+            "grid";
+
+        backMembers.style.display =
+            "none";
+
+        showAllBtn.style.display =
+            "inline-block";
+
+        document.getElementById(
+            "members"
+        ).scrollIntoView({
+            behavior:"smooth"
+        });
+
+    }
+);
+
+
+/* ==========================================
+   INITIAL LOAD
+========================================== */
+
+loadMembers();
+
+
+/* ==========================================
+   APPLICATION SYSTEM
+========================================== */
+
+const form =
+    document.getElementById("applyForm");
+
+const status =
+    document.getElementById("status");
+
+
+form.addEventListener(
+    "submit",
+    async function(event){
+
+        event.preventDefault();
+
+
+        status.style.color =
+            "#aaa";
+
+        status.innerText =
+            "Хүсэлт илгээж байна...";
+
+
+        const discordName =
+            document.getElementById(
+                "discordName"
+            ).value.trim();
+
+
+        const steam =
+            document.getElementById(
+                "steam"
+            ).value.trim();
+
+
+        const rank =
+            document.getElementById(
+                "rank"
+            ).value.trim();
+
+
+        const faceit =
+            document.getElementById(
+                "faceit"
+            ).value.trim();
+
+
+        const reason =
+            document.getElementById(
+                "reason"
+            ).value.trim();
+
+
+        try{
+
+            const response =
+                await fetch(
+                    "/api/apply",
+                    {
+                        method:"POST",
+
+                        headers:{
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:JSON.stringify({
+
+                            discord:
+                                discordName,
+
+                            steam:
+                                steam,
+
+                            rank:
+                                rank,
+
+                            faceit:
+                                faceit,
+
+                            reason:
+                                reason
+
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if(!response.ok){
+
+                throw new Error(
+                    data.message ||
+                    "Алдаа гарлаа"
+                );
+
+            }
+
+
+            status.style.color =
+                "#7cff8a";
+
+            status.innerText =
+                "✓ Хүсэлт амжилттай илгээгдлээ! MEMBER-д нэмэгдлээ.";
+
+
+            form.reset();
+
+
+            /*
+               Шинэ member-ийг
+               дахин серверээс авна.
+            */
+
+            await loadMembers();
+
+
+        }catch(error){
+
+            console.error(error);
+
+
+            status.style.color =
+                "#ff1744";
+
+            status.innerText =
+                "✕ " +
+                (
+                    error.message ||
+                    "Хүсэлт илгээгдэхэд алдаа гарлаа."
+                );
+
+        }
+
+    }
+);
+
 </script>
 
 </body>
