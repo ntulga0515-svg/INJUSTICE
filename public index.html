@@ -1,0 +1,58 @@
+<footer>
+    <strong>INJUSTICE</strong>
+    — © 2026 INJUSTICE CLAN
+</footer>
+
+<script>
+const form = document.getElementById("applyForm");
+const status = document.getElementById("status");
+
+form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    status.style.color = "#aaa";
+    status.innerText = "Хүсэлт илгээж байна...";
+
+    const discordName = document.getElementById("discordName").value;
+    const steam = document.getElementById("steam").value;
+    const rank = document.getElementById("rank").value;
+    const faceit = document.getElementById("faceit").value;
+    const reason = document.getElementById("reason").value;
+
+    try {
+        const response = await fetch("/api/apply", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                discord: discordName,
+                steam: steam,
+                rank: rank,
+                faceit: faceit,
+                reason: reason
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Алдаа гарлаа");
+        }
+
+        status.style.color = "#7cff8a";
+        status.innerText = "✓ Хүсэлт амжилттай илгээгдлээ!";
+
+        form.reset();
+
+    } catch (error) {
+        console.error(error);
+
+        status.style.color = "#ff1744";
+        status.innerText = "✕ Хүсэлт илгээгдэхэд алдаа гарлаа.";
+    }
+});
+</script>
+
+</body>
+</html>
