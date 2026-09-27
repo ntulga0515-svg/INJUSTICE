@@ -151,7 +151,7 @@ const defaultMembers = [
 ];
 
 /* =========================
-   LOAD / SAVE MEMBERS
+   LOAD / SAVE
 ========================= */
 
 function loadMembers() {
@@ -172,6 +172,7 @@ function loadMembers() {
     }
 
     return JSON.parse(data);
+
   } catch (error) {
     console.error("Member load error:", error);
     return defaultMembers;
@@ -192,125 +193,406 @@ function saveMembers(members) {
 function cleanSteamLink(link) {
   if (!link) return null;
 
-  return link.trim().replace(/\/+$/, "") + "/";
+  let value = link.trim();
+
+  value = value.replace(/\/+$/, "");
+
+  return value + "/";
 }
 
-function getSteamIdFromLink(link) {
-  if (!link) return null;
 
-  const profileMatch = link.match(
-    /steamcommunity\.com\/profiles\/(\d+)/
-  );
+/* ==========================================
+   GET STEAM PROFILE DATA
+========================================== */
 
-  if (profileMatch) {
-    return profileMatch[1];
+async function getSteamProfile(steamLink) {
+
+  try {
+
+    const apiKey = process.env.STEAM_API_KEY;
+
+    if (!apiKey) {
+      console.log("STEAM_API_KEY not configured.");
+      return null;
+    }
+
+    let steamId = null;
+
+    /* -------------------------
+       PROFILE ID LINK
+    ------------------------- */
+
+    const profileMatch = steamLink.match(
+      /steamcommunity\.com\/profiles\/(\d+)/i
+    );
+
+    if (profileMatch) {
+      steamId = profileMatch[1];
+    }
+
+
+    /* -------------------------
+       VANITY URL
+    ------------------------- */
+
+    if (!steamId) {
+
+      const vanityMatch = steamLink.match(
+        /steamcommunity\.com\/id\/([^\/]+)/i
+      );
+
+      if (vanityMatch) {
+
+        const vanityName =
+          vanityMatch[1];
+
+        const vanityUrl =
+          "https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/" +
+          "?key=" +
+          encodeURIComponent(apiKey) +
+          "&vanityurl=" +
+          encodeURIComponent(vanityName);
+
+        const vanityResponse =
+          await fetch(vanityUrl);
+
+        if (vanityResponse.ok) {
+
+          const vanityData =
+            await vanityResponse.json();
+
+          if (
+            vanityData.response &&
+            vanityData.response.success === 1
+          ) {
+            steamId =
+              vanityData.response.steamid;
+          }
+
+        }
+      }
+    }
+
+
+    if (!steamId) {
+      return null;
+    }
+
+
+    /* -------------------------
+       GET PLAYER SUMMARY
+    ------------------------- */
+
+    const summaryUrl =
+      "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/" +
+      "?key=" +
+      encodeURIComponent(apiKey) +
+      "&steamids=" +
+      encodeURIComponent(steamId);
+
+
+    const response =
+      await fetch(summaryUrl);
+
+
+    if (!response.ok) {
+      return null;
+    }
+
+
+    const data =
+      await response.json();
+
+
+    const player =
+      data?.response?.players?.[0];
+
+
+    if (!player) {
+      return null;
+    }
+
+
+    return {
+
+      steamId:
+        player.steamid || steamId,
+
+      name:
+        player.personaname || null,
+
+      avatar:
+        player.avatarfull ||
+        player.avatarmedium ||
+        player.avatar ||
+        null
+
+    };
+
+
+  } catch (error) {
+
+    console.error(
+      "Steam API error:",
+      error
+    );
+
+    return null;
+  }
+}
+
+
+/* ==========================================
+   UPDATE STEAM DATA
+========================================== */
+
+async function updateSteamData(members) {
+
+  const updated = [];
+
+  for (const member of members) {
+
+    const profile =
+      await getSteamProfile(
+        member.steam
+      );
+
+
+    if (profile) {
+
+      member.name =
+        profile.name ||
+        member.name ||
+        "INJUSTICE MEMBER";
+
+      member.avatar =
+        profile.avatar ||
+        member.avatar ||
+        null;
+
+      member.steamId =
+        profile.steamId ||
+        member.steamId ||
+        null;
+
+    }
+
+    updated.push(member);
   }
 
-  return null;
+  return updated;
 }
+
 
 /* =========================
    GET MEMBERS
 ========================= */
 
-app.get("/api/members", (req, res) => {
+app.get("/api/members", async (req, res) => {
+
   try {
-    const members = loadMembers();
+
+    let members =
+      loadMembers();
+
+
+    /*
+      Steam мэдээллийг шинэчилнэ.
+      API key байхгүй байсан ч
+      website хэвийн ажиллана.
+    */
+
+    if (process.env.STEAM_API_KEY) {
+
+      members =
+        await updateSteamData(members);
+
+      saveMembers(members);
+
+    }
+
 
     res.json({
+
       success: true,
+
       members
+
     });
+
+
   } catch (error) {
+
     console.error(error);
 
     res.status(500).json({
+
       success: false,
-      message: "Гишүүдийг авахад алдаа гарлаа."
+
+      message:
+        "Гишүүдийг авахад алдаа гарлаа."
+
     });
+
   }
+
 });
+
 
 /* =========================
    ADD MEMBER
 ========================= */
 
 app.post("/api/members", async (req, res) => {
+
   try {
+
     const {
       steam,
       discord
     } = req.body;
 
+
     if (!steam) {
+
       return res.status(400).json({
+
         success: false,
-        message: "Steam link оруулна уу."
+
+        message:
+          "Steam link оруулна уу."
+
       });
+
     }
 
-    const steamLink = cleanSteamLink(steam);
+
+    const steamLink =
+      cleanSteamLink(steam);
+
 
     if (
       !steamLink.startsWith(
         "https://steamcommunity.com/"
       )
     ) {
+
       return res.status(400).json({
+
         success: false,
-        message: "Steam link буруу байна."
+
+        message:
+          "Steam link буруу байна."
+
       });
+
     }
 
-    const members = loadMembers();
 
-    const exists = members.some(
-      member =>
-        member.steam.toLowerCase() ===
-        steamLink.toLowerCase()
-    );
+    const members =
+      loadMembers();
+
+
+    const exists =
+      members.some(
+        member =>
+          member.steam &&
+          member.steam.toLowerCase() ===
+          steamLink.toLowerCase()
+      );
+
 
     if (exists) {
+
       return res.status(409).json({
+
         success: false,
-        message: "Энэ Steam account аль хэдийн member байна."
+
+        message:
+          "Энэ Steam account аль хэдийн member байна."
+
       });
+
     }
 
+
+    const profile =
+      await getSteamProfile(
+        steamLink
+      );
+
+
     const newMember = {
-      name: discord || "NEW MEMBER",
-      steam: steamLink,
-      role: "MEMBER",
-      avatar: null,
-      addedAt: new Date().toISOString()
+
+      name:
+        profile?.name ||
+        discord ||
+        "NEW MEMBER",
+
+      steam:
+        steamLink,
+
+      role:
+        "MEMBER",
+
+      avatar:
+        profile?.avatar ||
+        null,
+
+      steamId:
+        profile?.steamId ||
+        null,
+
+      addedAt:
+        new Date().toISOString()
+
     };
+
 
     members.push(newMember);
 
     saveMembers(members);
 
+
     res.json({
+
       success: true,
-      message: "Шинэ MEMBER нэмэгдлээ.",
-      member: newMember
+
+      message:
+        "Шинэ MEMBER нэмэгдлээ.",
+
+      member:
+        newMember
+
     });
 
+
   } catch (error) {
+
     console.error(error);
 
     res.status(500).json({
+
       success: false,
-      message: "Member нэмэхэд алдаа гарлаа."
+
+      message:
+        "Member нэмэхэд алдаа гарлаа."
+
     });
+
   }
+
 });
+
 
 /* =========================
    APPLICATION
 ========================= */
 
 app.post("/api/apply", async (req, res) => {
+
   try {
+
     const {
       discord,
       steam,
@@ -319,6 +601,7 @@ app.post("/api/apply", async (req, res) => {
       reason
     } = req.body;
 
+
     if (
       !discord ||
       !steam ||
@@ -326,135 +609,259 @@ app.post("/api/apply", async (req, res) => {
       !faceit ||
       !reason
     ) {
+
       return res.status(400).json({
+
         success: false,
-        message: "Бүх хэсгийг бөглөнө үү."
+
+        message:
+          "Бүх хэсгийг бөглөнө үү."
+
       });
+
     }
 
-    const webhook = process.env.DISCORD_WEBHOOK_URL;
+
+    const webhook =
+      process.env.DISCORD_WEBHOOK_URL;
+
 
     if (!webhook) {
+
       return res.status(500).json({
+
         success: false,
-        message: "Discord webhook тохируулагдаагүй байна."
+
+        message:
+          "Discord webhook тохируулагдаагүй байна."
+
       });
+
     }
+
 
     /* =========================
        DISCORD WEBHOOK
     ========================= */
 
-    const response = await fetch(webhook, {
-      method: "POST",
+    const response =
+      await fetch(webhook, {
 
-      headers: {
-        "Content-Type": "application/json"
-      },
+        method:
+          "POST",
 
-      body: JSON.stringify({
-        username: "INJUSTICE APPLICATION",
+        headers: {
+          "Content-Type":
+            "application/json"
+        },
 
-        embeds: [
-          {
-            title: "🔴 ШИНЭ INJUSTICE ХҮСЭЛТ",
+        body:
+          JSON.stringify({
 
-            color: 16711680,
+            username:
+              "INJUSTICE APPLICATION",
 
-            fields: [
-              {
-                name: "Discord нэр",
-                value: discord,
-                inline: true
-              },
+            embeds: [
 
               {
-                name: "Steam link",
-                value: steam,
-                inline: true
-              },
 
-              {
-                name: "1st Rank",
-                value: rank,
-                inline: true
-              },
+                title:
+                  "🔴 ШИНЭ INJUSTICE ХҮСЭЛТ",
 
-              {
-                name: "FACEIT Level",
-                value: faceit,
-                inline: true
-              },
+                color:
+                  16711680,
 
-              {
-                name: "Яагаад INJUSTICE-г сонгосон бэ?",
-                value: reason
+                fields: [
+
+                  {
+                    name:
+                      "Discord нэр",
+
+                    value:
+                      discord,
+
+                    inline:
+                      true
+                  },
+
+                  {
+                    name:
+                      "Steam link",
+
+                    value:
+                      steam,
+
+                    inline:
+                      true
+                  },
+
+                  {
+                    name:
+                      "1st Rank",
+
+                    value:
+                      rank,
+
+                    inline:
+                      true
+                  },
+
+                  {
+                    name:
+                      "FACEIT Level",
+
+                    value:
+                      faceit,
+
+                    inline:
+                      true
+                  },
+
+                  {
+                    name:
+                      "Яагаад INJUSTICE-г сонгосон бэ?",
+
+                    value:
+                      reason
+                  }
+
+                ],
+
+                timestamp:
+                  new Date().toISOString()
+
               }
-            ],
 
-            timestamp: new Date().toISOString()
-          }
-        ]
-      })
-    });
+            ]
 
-    if (!response.ok) {
-      throw new Error("Discord webhook failed");
-    }
+          })
 
-    /* =========================
-       APPLICATION -> MEMBER
-    ========================= */
-
-    const members = loadMembers();
-
-    const steamLink = cleanSteamLink(steam);
-
-    const alreadyMember = members.some(
-      member =>
-        member.steam.toLowerCase() ===
-        steamLink.toLowerCase()
-    );
-
-    if (!alreadyMember) {
-      members.push({
-        name: discord,
-        steam: steamLink,
-        role: "MEMBER",
-        avatar: null,
-        rank: rank,
-        faceit: faceit,
-        addedAt: new Date().toISOString()
       });
 
-      saveMembers(members);
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Discord webhook failed"
+      );
+
     }
+
+
+    /* =========================
+       ADD MEMBER
+    ========================= */
+
+    const members =
+      loadMembers();
+
+
+    const steamLink =
+      cleanSteamLink(steam);
+
+
+    const alreadyMember =
+      members.some(
+
+        member =>
+          member.steam &&
+          member.steam.toLowerCase() ===
+          steamLink.toLowerCase()
+
+      );
+
+
+    if (!alreadyMember) {
+
+      const profile =
+        await getSteamProfile(
+          steamLink
+        );
+
+
+      members.push({
+
+        name:
+          profile?.name ||
+          discord,
+
+        steam:
+          steamLink,
+
+        role:
+          "MEMBER",
+
+        avatar:
+          profile?.avatar ||
+          null,
+
+        steamId:
+          profile?.steamId ||
+          null,
+
+        rank:
+          rank,
+
+        faceit:
+          faceit,
+
+        addedAt:
+          new Date().toISOString()
+
+      });
+
+
+      saveMembers(members);
+
+    }
+
 
     /* =========================
        RESPONSE
     ========================= */
 
     res.json({
-      success: true,
-      message: "Хүсэлт амжилттай илгээгдлээ. MEMBER-д нэмэгдлээ."
+
+      success:
+        true,
+
+      message:
+        "Хүсэлт амжилттай илгээгдлээ. MEMBER-д нэмэгдлээ."
+
     });
 
+
   } catch (error) {
+
     console.error(error);
 
     res.status(500).json({
-      success: false,
-      message: "Хүсэлт илгээхэд алдаа гарлаа."
+
+      success:
+        false,
+
+      message:
+        "Хүсэлт илгээхэд алдаа гарлаа."
+
     });
+
   }
+
 });
+
 
 /* =========================
    SERVER
 ========================= */
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(
-    `INJUSTICE server running on port ${PORT}`
-  );
-});
+app.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+
+    console.log(
+      `INJUSTICE server running on port ${PORT}`
+    );
+
+  }
+);
