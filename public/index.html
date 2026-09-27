@@ -3,536 +3,473 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>INJUSTICE — Clan</title>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap');
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    scroll-behavior:smooth;
-}
+*{margin:0;padding:0;box-sizing:border-box;scroll-behavior:smooth}
 
 :root{
-    --red:#ff1744;
-    --purple:#8b35ff;
-    --bg:#050507;
-    --card:#0d0a11;
-    --text:#f5f5f5;
-    --muted:#999;
+ --red:#ff1744;
+ --purple:#8b35ff;
+ --bg:#050507;
+ --card:#0d0a11;
+ --text:#f5f5f5;
+ --muted:#999;
 }
 
 body{
-    background:
-        radial-gradient(circle at 80% 10%,rgba(139,53,255,.18),transparent 30%),
-        radial-gradient(circle at 10% 50%,rgba(255,23,68,.14),transparent 30%),
-        var(--bg);
-    color:var(--text);
-    font-family:'Rajdhani',sans-serif;
-    overflow-x:hidden;
+ background:
+ radial-gradient(circle at 80% 10%,rgba(139,53,255,.18),transparent 30%),
+ radial-gradient(circle at 10% 50%,rgba(255,23,68,.14),transparent 30%),
+ var(--bg);
+ color:var(--text);
+ font-family:'Rajdhani',sans-serif;
+ overflow-x:hidden;
 }
 
 body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    opacity:.035;
-    background-image:
-        linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
-    background-size:45px 45px;
-    z-index:-1;
+ content:"";
+ position:fixed;
+ inset:0;
+ pointer-events:none;
+ opacity:.035;
+ background-image:
+ linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+ background-size:45px 45px;
 }
 
-/* NAV */
-
 nav{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    z-index:999;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:20px 7%;
-    background:rgba(5,5,7,.8);
-    backdrop-filter:blur(15px);
-    border-bottom:1px solid rgba(255,255,255,.06);
+ position:fixed;
+ top:0;
+ left:0;
+ width:100%;
+ z-index:999;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ padding:18px 5%;
+ background:rgba(5,5,7,.85);
+ backdrop-filter:blur(15px);
+ border-bottom:1px solid rgba(255,255,255,.06);
 }
 
 .logo-text{
-    font-family:'Orbitron';
-    font-size:22px;
-    font-weight:900;
-    letter-spacing:4px;
+ font-family:'Orbitron';
+ font-size:22px;
+ font-weight:900;
+ letter-spacing:4px;
+ white-space:nowrap;
 }
 
-.logo-text span{
-    color:var(--red);
-}
+.logo-text span{color:var(--red)}
 
 nav ul{
-    display:flex;
-    gap:30px;
-    list-style:none;
+ display:flex;
+ gap:22px;
+ list-style:none;
+ align-items:center;
 }
 
 nav a{
-    color:#aaa;
-    text-decoration:none;
-    font-weight:700;
-    letter-spacing:1px;
-    transition:.25s;
+ color:#aaa;
+ text-decoration:none;
+ font-weight:700;
+ letter-spacing:1px;
+ transition:.25s;
+ white-space:nowrap;
 }
 
 nav a:hover{
-    color:white;
-    text-shadow:0 0 15px var(--red);
+ color:white;
+ text-shadow:0 0 15px var(--red);
 }
 
-/* HERO */
+.nav-login{
+ color:white!important;
+ border:1px solid #8b35ff;
+ padding:8px 13px;
+ border-radius:7px;
+ background:rgba(139,53,255,.12);
+}
+
+.nav-manage{
+ color:#ff5475!important;
+}
 
 .hero{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    padding:130px 20px 70px;
+ min-height:100vh;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ text-align:center;
+ padding:130px 20px 70px;
 }
 
-.hero-content{
-    max-width:900px;
-}
+.hero-content{max-width:900px}
 
 .hero-logo{
-    width:180px;
-    height:180px;
-    object-fit:cover;
-    border-radius:25px;
-    border:1px solid rgba(255,23,68,.7);
-    box-shadow:
-        0 0 35px rgba(255,23,68,.35),
-        0 0 90px rgba(139,53,255,.2);
-    margin-bottom:30px;
+ width:180px;
+ height:180px;
+ object-fit:cover;
+ border-radius:25px;
+ border:1px solid rgba(255,23,68,.7);
+ box-shadow:0 0 35px rgba(255,23,68,.35),0 0 90px rgba(139,53,255,.2);
+ margin-bottom:30px;
 }
 
 .kicker{
-    color:#aaa;
-    font-size:14px;
-    letter-spacing:7px;
-    margin-bottom:15px;
+ color:#aaa;
+ font-size:14px;
+ letter-spacing:7px;
+ margin-bottom:15px;
 }
 
 h1{
-    font-family:'Orbitron';
-    font-size:clamp(55px,12vw,145px);
-    line-height:.9;
-    letter-spacing:8px;
-    background:linear-gradient(
-        100deg,
-        #fff,
-        #ff1744 45%,
-        #8b35ff
-    );
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
+ font-family:'Orbitron';
+ font-size:clamp(55px,12vw,145px);
+ line-height:.9;
+ letter-spacing:8px;
+ background:linear-gradient(100deg,#fff,#ff1744 45%,#8b35ff);
+ -webkit-background-clip:text;
+ background-clip:text;
+ color:transparent;
 }
 
 .hero p{
-    color:#aaa;
-    font-size:20px;
-    margin:30px auto;
+ color:#aaa;
+ font-size:20px;
+ margin:30px auto;
 }
 
-/* BUTTONS */
-
 .buttons{
-    display:flex;
-    justify-content:center;
-    gap:15px;
-    flex-wrap:wrap;
+ display:flex;
+ justify-content:center;
+ gap:15px;
+ flex-wrap:wrap;
 }
 
 .btn{
-    display:inline-block;
-    padding:14px 28px;
-    border-radius:8px;
-    text-decoration:none;
-    font-weight:800;
-    font-size:16px;
-    border:none;
-    cursor:pointer;
-    font-family:'Rajdhani';
-    transition:.25s;
+ display:inline-block;
+ padding:14px 28px;
+ border-radius:8px;
+ text-decoration:none;
+ font-weight:800;
+ font-size:16px;
+ border:none;
+ cursor:pointer;
+ font-family:'Rajdhani';
+ transition:.25s;
 }
 
 .primary{
-    color:white;
-    background:linear-gradient(
-        100deg,
-        #8b001d,
-        #ff1744
-    );
-    box-shadow:0 0 25px rgba(255,23,68,.2);
+ color:white;
+ background:linear-gradient(100deg,#8b001d,#ff1744);
+ box-shadow:0 0 25px rgba(255,23,68,.2);
 }
 
 .secondary{
-    color:white;
-    background:#111018;
-    border:1px solid #29232e;
+ color:white;
+ background:#111018;
+ border:1px solid #29232e;
 }
 
 .btn:hover{
-    transform:translateY(-4px);
-    box-shadow:0 10px 35px rgba(139,53,255,.3);
+ transform:translateY(-4px);
+ box-shadow:0 10px 35px rgba(139,53,255,.3);
 }
 
-/* SECTIONS */
-
-section{
-    padding:110px 7%;
-}
+section{padding:110px 7%}
 
 .section-title{
-    text-align:center;
-    margin-bottom:50px;
+ text-align:center;
+ margin-bottom:50px;
 }
 
 .section-title small{
-    color:var(--red);
-    font-family:'Orbitron';
-    letter-spacing:4px;
+ color:var(--red);
+ font-family:'Orbitron';
+ letter-spacing:4px;
 }
 
 .section-title h2{
-    font-family:'Orbitron';
-    font-size:40px;
-    margin-top:10px;
+ font-family:'Orbitron';
+ font-size:40px;
+ margin-top:10px;
 }
 
-/* MEMBERS */
-
-.members-grid{
-    max-width:1150px;
-    margin:auto;
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:18px;
+.grid{
+ max-width:1200px;
+ margin:auto;
+ display:grid;
+ grid-template-columns:repeat(4,1fr);
+ gap:18px;
 }
 
-.member-card{
-    position:relative;
-    display:block;
-    text-decoration:none;
-    color:white;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(20,17,25,.95),
-            rgba(9,8,12,.95)
-        );
-
-    border:1px solid rgba(255,255,255,.07);
-    border-radius:16px;
-    padding:28px 20px;
-    text-align:center;
-
-    transition:.25s;
-    overflow:hidden;
+.card{
+ background:linear-gradient(145deg,rgba(20,17,25,.95),rgba(9,8,12,.95));
+ border:1px solid rgba(255,255,255,.07);
+ border-radius:16px;
+ padding:25px;
+ transition:.25s;
 }
 
-.member-card::before{
-    content:"";
-    position:absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height:2px;
-    background:linear-gradient(
-        90deg,
-        transparent,
-        var(--red),
-        var(--purple),
-        transparent
-    );
-    opacity:.7;
+.card:hover{
+ transform:translateY(-6px);
+ border-color:rgba(255,23,68,.4);
+ box-shadow:0 15px 50px rgba(0,0,0,.45);
 }
 
-.member-card:hover{
-    transform:translateY(-7px);
-    border-color:rgba(255,23,68,.45);
-    box-shadow:
-        0 15px 50px rgba(0,0,0,.5),
-        0 0 25px rgba(255,23,68,.08);
+.member{text-align:center}
+
+.avatar{
+ width:80px;
+ height:80px;
+ object-fit:cover;
+ border-radius:50%;
+ border:2px solid var(--red);
+ margin:0 auto 15px;
+ box-shadow:0 0 20px rgba(255,23,68,.25);
 }
 
-.member-avatar{
-    width:90px;
-    height:90px;
-    border-radius:50%;
-    object-fit:cover;
-    margin:0 auto 16px;
-
-    border:2px solid var(--red);
-
-    background:
-        radial-gradient(
-            circle,
-            #291020,
-            #0d0a11
-        );
-
-    box-shadow:
-        0 0 20px rgba(255,23,68,.25);
-
-    display:block;
+.member h3{
+ font-family:'Orbitron';
+ font-size:16px;
+ margin-bottom:7px;
+ word-break:break-word;
 }
 
-.member-name{
-    font-family:'Orbitron';
-    font-size:15px;
-    font-weight:800;
-    margin-bottom:8px;
-    word-break:break-word;
+.role{
+ color:#a56cff;
+ font-size:13px;
+ letter-spacing:2px;
 }
 
-.member-role{
-    display:inline-block;
-    padding:5px 12px;
-    border-radius:20px;
-
-    background:rgba(139,53,255,.1);
-    border:1px solid rgba(139,53,255,.25);
-
-    color:#b783ff;
-    font-size:12px;
-    font-weight:700;
-    letter-spacing:2px;
+.steam-link{
+ color:white;
+ text-decoration:none;
 }
 
-.member-steam{
-    margin-top:10px;
-    color:#666;
-    font-size:12px;
-}
-
-.role-owner .member-role{
-    color:#ff526f;
-    border-color:rgba(255,23,68,.35);
-    background:rgba(255,23,68,.08);
-}
-
-.role-admin .member-role{
-    color:#ff9c4a;
-    border-color:rgba(255,156,74,.3);
-    background:rgba(255,156,74,.08);
-}
-
-.role-mod .member-role{
-    color:#a56cff;
-    border-color:rgba(165,108,255,.3);
-    background:rgba(165,108,255,.08);
-}
-
-.role-member .member-role{
-    color:#62a8ff;
-    border-color:rgba(98,168,255,.25);
-    background:rgba(98,168,255,.07);
-}
-
-/* MEMBER BUTTON */
-
-.members-actions{
-    text-align:center;
-    margin-top:40px;
-}
-
-#allMembers{
-    display:none;
-}
-
-#backMembers{
-    display:none;
-}
-
-#memberLoading{
-    text-align:center;
-    color:#777;
-    font-size:17px;
-    padding:20px;
-}
-
-.empty-members{
-    grid-column:1/-1;
-    text-align:center;
-    color:#777;
-    padding:40px;
-}
-
-/* RULES */
+.steam-link:hover{color:#ff1744}
 
 .rules{
-    max-width:850px;
-    margin:auto;
+ max-width:850px;
+ margin:auto;
 }
 
 .rule{
-    display:flex;
-    gap:20px;
-    padding:20px 0;
-    border-bottom:1px solid rgba(255,255,255,.06);
-    font-size:17px;
+ display:flex;
+ gap:20px;
+ padding:20px 0;
+ border-bottom:1px solid rgba(255,255,255,.06);
+ font-size:17px;
 }
 
 .rule-number{
-    color:var(--red);
-    font-family:'Orbitron';
-    font-weight:900;
-    min-width:30px;
+ color:var(--red);
+ font-family:'Orbitron';
+ font-weight:900;
+ min-width:30px;
 }
 
-/* APPLY */
-
 .apply{
-    max-width:750px;
-    margin:auto;
+ max-width:750px;
+ margin:auto;
 }
 
 form{
-    display:grid;
-    gap:15px;
+ display:grid;
+ gap:15px;
 }
 
-input,
-textarea{
-    width:100%;
-    padding:15px;
-    background:#0c0a0f;
-    color:white;
-    border:1px solid #28232d;
-    border-radius:9px;
-    font-family:'Rajdhani';
-    font-size:16px;
-    outline:none;
+input,textarea{
+ width:100%;
+ padding:15px;
+ background:#0c0a0f;
+ color:white;
+ border:1px solid #28232d;
+ border-radius:9px;
+ font-family:'Rajdhani';
+ font-size:16px;
+ outline:none;
 }
 
-input::placeholder,
-textarea::placeholder{
-    color:#777;
-}
+input::placeholder,textarea::placeholder{color:#777}
 
-input:focus,
-textarea:focus{
-    border-color:var(--purple);
-    box-shadow:0 0 0 3px rgba(139,53,255,.1);
+input:focus,textarea:focus{
+ border-color:var(--purple);
+ box-shadow:0 0 0 3px rgba(139,53,255,.1);
 }
 
 textarea{
-    min-height:140px;
-    resize:vertical;
+ min-height:140px;
+ resize:vertical;
 }
 
 #status{
-    text-align:center;
-    margin-top:15px;
-    min-height:25px;
-    font-size:17px;
-    font-weight:700;
+ text-align:center;
+ margin-top:15px;
+ min-height:25px;
+ font-size:17px;
+ font-weight:700;
 }
 
-/* DISCORD */
-
 .discord-card{
-    max-width:750px;
-    margin:auto;
-    text-align:center;
+ max-width:750px;
+ margin:auto;
+ text-align:center;
 }
 
 .discord-icon{
-    font-size:50px;
-    margin-bottom:15px;
+ font-size:50px;
+ margin-bottom:15px;
 }
 
 .discord-card h3{
-    font-family:'Orbitron';
-    font-size:22px;
+ font-family:'Orbitron';
+ font-size:22px;
 }
 
 .discord-card p{
-    color:#999;
-    font-size:18px;
-    margin:12px 0 25px;
+ color:#999;
+ font-size:18px;
+ margin:12px 0 25px;
 }
 
-/* FOOTER */
+#manage{
+ display:none;
+}
+
+.applications-list{
+ max-width:850px;
+ margin:auto;
+ display:grid;
+ gap:18px;
+}
+
+.application-card{
+ background:linear-gradient(145deg,#141119,#09080c);
+ border:1px solid rgba(255,255,255,.08);
+ border-radius:16px;
+ padding:25px;
+}
+
+.application-card h3{
+ font-family:'Orbitron';
+ margin-bottom:15px;
+ font-size:22px;
+}
+
+.application-info{
+ color:#aaa;
+ line-height:1.9;
+}
+
+.application-info strong{
+ color:#fff;
+}
+
+.application-info a{
+ color:#a56cff;
+ word-break:break-all;
+}
+
+.application-actions{
+ display:flex;
+ gap:10px;
+ margin-top:20px;
+ flex-wrap:wrap;
+}
+
+.approve-btn{
+ background:#168f45;
+ color:white;
+}
+
+.reject-btn{
+ background:#b31335;
+ color:white;
+}
+
+.manage-user{
+ max-width:850px;
+ margin:0 auto 25px;
+ padding:15px 20px;
+ border:1px solid rgba(139,53,255,.3);
+ background:rgba(139,53,255,.08);
+ border-radius:10px;
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+}
+
+.logout-btn{
+ background:#17131d;
+ color:#aaa;
+ border:1px solid #302936;
+ padding:8px 15px;
+ border-radius:7px;
+ cursor:pointer;
+}
 
 footer{
-    text-align:center;
-    padding:45px 20px;
-    color:#666;
-    border-top:1px solid rgba(255,255,255,.06);
+ text-align:center;
+ padding:45px 20px;
+ color:#666;
+ border-top:1px solid rgba(255,255,255,.06);
 }
 
-footer strong{
-    color:#aaa;
-}
+footer strong{color:#aaa}
 
-/* MOBILE */
-
-@media(max-width:900px){
-
-    .members-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
-
+@media(max-width:1050px){
+ nav ul{gap:12px}
+ nav a{font-size:13px}
+ .grid{grid-template-columns:repeat(3,1fr)}
 }
 
 @media(max-width:800px){
-
-    nav ul{
-        display:none;
-    }
-
+ nav{
+  padding:16px 4%;
+ }
+ nav ul{
+  gap:8px;
+ }
+ nav a{
+  font-size:11px;
+ }
+ .logo-text{
+  font-size:17px;
+  letter-spacing:2px;
+ }
+ .grid{grid-template-columns:1fr 1fr}
 }
 
 @media(max-width:500px){
-
-    .members-grid{
-        grid-template-columns:1fr;
-    }
-
-    h1{
-        font-size:55px;
-    }
-
-    .hero-logo{
-        width:140px;
-        height:140px;
-    }
-
-    section{
-        padding:80px 5%;
-    }
-
-    .section-title h2{
-        font-size:32px;
-    }
-
+ nav{
+  overflow-x:auto;
+ }
+ nav ul{
+  display:flex;
+ }
+ .grid{grid-template-columns:1fr}
+ h1{font-size:55px}
+ .hero-logo{
+  width:140px;
+  height:140px;
+ }
+ section{padding:80px 5%}
+ .manage-user{
+  flex-direction:column;
+  align-items:flex-start;
+ }
 }
 </style>
 </head>
 
 <body>
-
-<!-- NAV -->
 
 <nav>
 
@@ -545,13 +482,13 @@ INJUST<span>ICE</span>
 <li><a href="#members">ГИШҮҮД</a></li>
 <li><a href="#rules">ДҮРЭМ</a></li>
 <li><a href="#apply">ХҮСЭЛТ</a></li>
-<li><a href="#discord">DISCORD</a></li>
+<li><a href="https://discord.gg/kED9f66v2" target="_blank">DISCORD</a></li>
+<li><a href="#manage" class="nav-manage" id="manageNav">MANAGE</a></li>
+<li><a href="/auth/discord" class="nav-login">DISCORD LOGIN</a></li>
 </ul>
 
 </nav>
 
-
-<!-- HOME -->
 
 <section class="hero" id="home">
 
@@ -563,43 +500,22 @@ src="https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624
 alt="INJUSTICE"
 >
 
-<div class="kicker">
-INJUSTICE CLAN
-</div>
+<div class="kicker">INJUSTICE CLAN</div>
 
-<h1>
-INJUSTICE
-</h1>
+<h1>INJUSTICE</h1>
 
-<p>
-Welcome to INJUSTICE.
-</p>
+<p>Welcome to INJUSTICE.</p>
 
 <div class="buttons">
 
-<a
-class="btn primary"
+<a class="btn primary"
 href="https://discord.gg/kED9f66v2"
-target="_blank"
-rel="noopener noreferrer"
->
+target="_blank">
 DISCORD-Т НЭГДЭХ
 </a>
 
-<a
-class="btn secondary"
-href="#apply"
->
+<a class="btn secondary" href="#apply">
 КЛАНД НЭГДЭХ
-</a>
-
-<a
-class="btn secondary"
-href="https://1st.mn/clan/59"
-target="_blank"
-rel="noopener noreferrer"
->
-CLAN SERVER
 </a>
 
 </div>
@@ -608,68 +524,32 @@ CLAN SERVER
 
 </section>
 
-
-<!-- MEMBERS -->
 
 <section id="members">
 
 <div class="section-title">
-
 <small>МАНАЙ БАГ</small>
-
 <h2>ГИШҮҮД</h2>
-
 </div>
 
-<div id="memberLoading">
-Гишүүдийг ачаалж байна...
+<div class="grid" id="membersGrid">
+
+<div class="card member">
+<div class="avatar" style="display:grid;place-items:center;background:#17131d">...</div>
+<h3>LOADING</h3>
+<div class="role">INJUSTICE</div>
 </div>
-
-<div
-class="members-grid"
-id="featuredMembers"
->
-</div>
-
-<div
-class="members-grid"
-id="allMembers"
->
-</div>
-
-<div class="members-actions">
-
-<button
-id="showAllBtn"
-class="btn secondary"
-type="button"
->
-БҮХ ГИШҮҮДИЙГ ХАРАХ
-</button>
-
-<button
-id="backMembers"
-class="btn secondary"
-type="button"
->
-← БУЦАХ
-</button>
 
 </div>
 
 </section>
 
 
-<!-- RULES -->
-
 <section id="rules">
 
 <div class="section-title">
-
 <small>INJUSTICE CLAN</small>
-
 <h2>ДҮРЭМ</h2>
-
 </div>
 
 <div class="card rules">
@@ -704,16 +584,11 @@ type="button"
 </section>
 
 
-<!-- APPLY -->
-
 <section id="apply">
 
 <div class="section-title">
-
 <small>INJUSTICE-Д НЭГДЭХ</small>
-
 <h2>ХҮСЭЛТ ИЛГЭЭХ</h2>
-
 </div>
 
 <div class="card apply">
@@ -754,10 +629,7 @@ placeholder="Яагаад INJUSTICE-г сонгосон бэ?"
 required
 ></textarea>
 
-<button
-type="submit"
-class="btn primary"
->
+<button type="submit" class="btn primary">
 ХҮСЭЛТ ИЛГЭЭХ
 </button>
 
@@ -770,27 +642,49 @@ class="btn primary"
 </section>
 
 
-<!-- DISCORD -->
+<section id="manage">
+
+<div class="section-title">
+<small>INJUSTICE CLAN</small>
+<h2>APPLICATIONS</h2>
+</div>
+
+<div class="manage-user">
+
+<div>
+<span style="color:#777">LOGGED IN AS</span><br>
+<strong id="manageUsername">...</strong>
+</div>
+
+<button class="logout-btn" onclick="manageLogout()">
+LOGOUT
+</button>
+
+</div>
+
+<div class="applications-list" id="applicationsList">
+
+<p style="text-align:center;color:#777">
+Хүсэлтүүдийг ачаалж байна...
+</p>
+
+</div>
+
+</section>
+
 
 <section id="discord">
 
 <div class="section-title">
-
 <small>МАНАЙ COMMUNITY</small>
-
 <h2>DISCORD</h2>
-
 </div>
 
 <div class="card discord-card">
 
-<div class="discord-icon">
-💬
-</div>
+<div class="discord-icon">💬</div>
 
-<h3>
-INJUSTICE-Д НЭГДЭЭРЭЙ
-</h3>
+<h3>INJUSTICE-Д НЭГДЭЭРЭЙ</h3>
 
 <p>
 Манай Discord серверт нэгдэж,
@@ -800,9 +694,7 @@ INJUSTICE-Д НЭГДЭЭРЭЙ
 <a
 class="btn primary"
 href="https://discord.gg/kED9f66v2"
-target="_blank"
-rel="noopener noreferrer"
->
+target="_blank">
 DISCORD SERVER-Т НЭГДЭХ
 </a>
 
@@ -811,516 +703,362 @@ DISCORD SERVER-Т НЭГДЭХ
 </section>
 
 
-<!-- FOOTER -->
-
 <footer>
-
-<strong>INJUSTICE</strong>
-
-— © 2026 INJUSTICE CLAN
-
+<strong>INJUSTICE</strong> — © 2026 INJUSTICE CLAN
 </footer>
 
 
 <script>
 
-/* ==========================================
-   MEMBER SYSTEM
-========================================== */
+const form = document.getElementById("applyForm");
+const status = document.getElementById("status");
 
-const featuredMembers =
-    document.getElementById("featuredMembers");
+form.addEventListener("submit", async function(event){
 
-const allMembers =
-    document.getElementById("allMembers");
+ event.preventDefault();
 
-const memberLoading =
-    document.getElementById("memberLoading");
+ status.style.color="#aaa";
+ status.innerText="Хүсэлт илгээж байна...";
 
-const showAllBtn =
-    document.getElementById("showAllBtn");
+ try{
 
-const backMembers =
-    document.getElementById("backMembers");
+  const response=await fetch("/api/apply",{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json"
+   },
+   body:JSON.stringify({
+    discord:document.getElementById("discordName").value,
+    steam:document.getElementById("steam").value,
+    rank:document.getElementById("rank").value,
+    faceit:document.getElementById("faceit").value,
+    reason:document.getElementById("reason").value
+   })
+  });
 
+  const data=await response.json();
 
-let members = [];
+  if(!response.ok){
+   throw new Error(data.message||"Алдаа гарлаа");
+  }
 
+  status.style.color="#7cff8a";
+  status.innerText="✓ Хүсэлт амжилттай илгээгдлээ!";
 
-/* ==========================================
-   DEFAULT AVATAR
-========================================== */
+  form.reset();
 
-function createAvatar(member){
+ }catch(error){
 
-    if(member.avatar){
-        return member.avatar;
-    }
+  console.error(error);
 
-    /*
-       Steam API зураг байхгүй үед
-       INJUSTICE logo ашиглана.
-    */
+  status.style.color="#ff1744";
+  status.innerText="✕ "+error.message;
+ }
 
-    return "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg?ex=6aba47e2&is=6ab8f662&hm=eaf8b4693a0a2a0f41b5681b99ec849d7569b63d3d69ef391221bb21ff209877&";
-}
+});
 
 
-/* ==========================================
-   ROLE NAME
-========================================== */
+function escapeHtml(value){
 
-function roleName(role){
-
-    const r = String(role || "MEMBER").toUpperCase();
-
-    if(r === "OWNER"){
-        return "OWNER";
-    }
-
-    if(r === "ADMIN"){
-        return "ADMIN";
-    }
-
-    if(r === "MOD"){
-        return "MODERATOR";
-    }
-
-    return "MEMBER";
-}
-
-
-/* ==========================================
-   MEMBER CARD
-========================================== */
-
-function createMemberCard(member){
-
-    const card =
-        document.createElement("a");
-
-    card.className =
-        "member-card role-" +
-        String(member.role || "MEMBER")
-            .toLowerCase();
-
-    card.href =
-        member.steam || "#";
-
-    card.target = "_blank";
-
-    card.rel =
-        "noopener noreferrer";
-
-    const avatar =
-        document.createElement("img");
-
-    avatar.className =
-        "member-avatar";
-
-    avatar.src =
-        createAvatar(member);
-
-    avatar.alt =
-        member.name || "INJUSTICE MEMBER";
-
-    avatar.onerror = function(){
-
-        this.src =
-            "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg?ex=6aba47e2&is=6ab8f662&hm=eaf8b4693a0a2a0f41b5681b99ec849d7569b63d3d69ef391221bb21ff209877&";
-
-    };
-
-
-    const name =
-        document.createElement("div");
-
-    name.className =
-        "member-name";
-
-    name.textContent =
-        member.name || "INJUSTICE MEMBER";
-
-
-    const role =
-        document.createElement("div");
-
-    role.className =
-        "member-role";
-
-    role.textContent =
-        roleName(member.role);
-
-
-    const steam =
-        document.createElement("div");
-
-    steam.className =
-        "member-steam";
-
-    steam.textContent =
-        "STEAM PROFILE";
-
-
-    card.appendChild(avatar);
-    card.appendChild(name);
-    card.appendChild(role);
-    card.appendChild(steam);
-
-    return card;
-}
-
-
-/* ==========================================
-   RENDER MEMBERS
-========================================== */
-
-function renderMembers(){
-
-    featuredMembers.innerHTML = "";
-    allMembers.innerHTML = "";
-
-    /*
-       Эхний хэсэг:
-       OWNER + ADMIN + MOD
-    */
-
-    const featured =
-        members.filter(member => {
-
-            const role =
-                String(member.role || "")
-                    .toUpperCase();
-
-            return (
-                role === "OWNER" ||
-                role === "ADMIN" ||
-                role === "MOD"
-            );
-
-        });
-
-
-    /*
-       Бүх member
-    */
-
-    const all =
-        members;
-
-
-    if(featured.length === 0){
-
-        featuredMembers.innerHTML =
-            '<div class="empty-members">Гишүүн олдсонгүй.</div>';
-
-    } else {
-
-        featured.forEach(member => {
-
-            featuredMembers.appendChild(
-                createMemberCard(member)
-            );
-
-        });
-
-    }
-
-
-    if(all.length === 0){
-
-        allMembers.innerHTML =
-            '<div class="empty-members">Гишүүн олдсонгүй.</div>';
-
-    } else {
-
-        all.forEach(member => {
-
-            allMembers.appendChild(
-                createMemberCard(member)
-            );
-
-        });
-
-    }
+ return String(value||"")
+ .replace(/&/g,"&amp;")
+ .replace(/</g,"&lt;")
+ .replace(/>/g,"&gt;")
+ .replace(/"/g,"&quot;")
+ .replace(/'/g,"&#039;");
 
 }
 
-
-/* ==========================================
-   LOAD MEMBERS FROM SERVER
-========================================== */
 
 async function loadMembers(){
 
-    try{
+ const grid=document.getElementById("membersGrid");
 
-        const response =
-            await fetch("/api/members", {
-                cache:"no-store"
-            });
+ try{
 
+  const response=await fetch("/api/members");
+  const members=await response.json();
 
-        if(!response.ok){
+  grid.innerHTML=members.map(member=>`
 
-            throw new Error(
-                "Members API error"
-            );
+   <div class="card member">
 
-        }
+    <a
+     href="${escapeHtml(member.steam)}"
+     target="_blank"
+     class="steam-link"
+    >
 
+     <img
+      class="avatar"
+      src="${escapeHtml(member.avatar || "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg")}"
+      alt="${escapeHtml(member.name)}"
+      onerror="this.src='https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg'"
+     >
 
-        const data =
-            await response.json();
+     <h3>${escapeHtml(member.name)}</h3>
 
+    </a>
 
-        if(
-            !data.success ||
-            !Array.isArray(data.members)
-        ){
+    <div class="role">
+     ${escapeHtml(member.role)}
+    </div>
 
-            throw new Error(
-                "Members data invalid"
-            );
+   </div>
 
-        }
+  `).join("");
 
+ }catch(error){
 
-        members =
-            data.members;
+  console.error(error);
 
-
-        renderMembers();
-
-
-        memberLoading.style.display =
-            "none";
-
-
-    }catch(error){
-
-        console.error(
-            "Member loading error:",
-            error
-        );
-
-
-        memberLoading.innerText =
-            "Гишүүдийг ачааллахад алдаа гарлаа.";
-
-    }
+  grid.innerHTML=`
+   <div class="card member">
+    <h3>MEMBERS</h3>
+    <div class="role">LOAD ERROR</div>
+   </div>
+  `;
+ }
 
 }
 
 
-/* ==========================================
-   SHOW ALL
-========================================== */
+async function checkManage(){
 
-showAllBtn.addEventListener(
-    "click",
-    function(){
+ try{
 
-        featuredMembers.style.display =
-            "none";
+  const response=await fetch("/api/manage/me");
 
-        allMembers.style.display =
-            "grid";
+  const data=await response.json();
 
-        showAllBtn.style.display =
-            "none";
+  if(!data.authorized){
+   return;
+  }
 
-        backMembers.style.display =
-            "inline-block";
+  document.getElementById("manage").style.display="block";
 
-        document.getElementById(
-            "members"
-        ).scrollIntoView({
-            behavior:"smooth"
-        });
+  document.getElementById("manageUsername").innerText=
+   data.username || data.id || "AUTHORIZED";
 
-    }
-);
+  loadApplications();
+
+ }catch(error){
+
+  console.log("Not logged in.");
+
+ }
+
+}
 
 
-/* ==========================================
-   BACK
-========================================== */
+async function loadApplications(){
 
-backMembers.addEventListener(
-    "click",
-    function(){
+ const list=document.getElementById("applicationsList");
 
-        allMembers.style.display =
-            "none";
+ try{
 
-        featuredMembers.style.display =
-            "grid";
+  const response=await fetch("/api/manage/applications");
 
-        backMembers.style.display =
-            "none";
+  if(!response.ok){
 
-        showAllBtn.style.display =
-            "inline-block";
+   list.innerHTML=`
+    <p style="text-align:center;color:#ff1744">
+     ACCESS DENIED
+    </p>
+   `;
 
-        document.getElementById(
-            "members"
-        ).scrollIntoView({
-            behavior:"smooth"
-        });
+   return;
+  }
 
-    }
-);
+  const applications=await response.json();
+
+  if(!applications.length){
+
+   list.innerHTML=`
+    <p style="text-align:center;color:#777">
+     Одоогоор шинэ хүсэлт алга.
+    </p>
+   `;
+
+   return;
+  }
+
+  list.innerHTML=applications.map(app=>`
+
+   <div class="application-card">
+
+    <h3>${escapeHtml(app.discord || "Unknown")}</h3>
+
+    <div class="application-info">
+
+     <div>
+      <strong>Steam:</strong>
+      <a href="${escapeHtml(app.steam)}" target="_blank">
+       ${escapeHtml(app.steam)}
+      </a>
+     </div>
+
+     <div>
+      <strong>Rank:</strong>
+      ${escapeHtml(app.rank || "-")}
+     </div>
+
+     <div>
+      <strong>FACEIT:</strong>
+      ${escapeHtml(app.faceit || "-")}
+     </div>
+
+     <div>
+      <strong>Шалтгаан:</strong>
+      ${escapeHtml(app.reason || "-")}
+     </div>
+
+    </div>
+
+    <div class="application-actions">
+
+     <button
+      class="btn approve-btn"
+      onclick="approveApplication('${escapeHtml(app.id)}')">
+      ✓ ЗӨВШӨӨРӨХ
+     </button>
+
+     <button
+      class="btn reject-btn"
+      onclick="rejectApplication('${escapeHtml(app.id)}')">
+      ✕ ТАТГАЛЗАХ
+     </button>
+
+    </div>
+
+   </div>
+
+  `).join("");
+
+ }catch(error){
+
+  console.error(error);
+
+  list.innerHTML=`
+   <p style="text-align:center;color:#ff1744">
+    Хүсэлтүүдийг ачаалж чадсангүй.
+   </p>
+  `;
+
+ }
+
+}
 
 
-/* ==========================================
-   INITIAL LOAD
-========================================== */
+async function approveApplication(id){
+
+ if(!confirm("Энэ хүсэлтийг MEMBER болгох уу?"))
+  return;
+
+ try{
+
+  const response=await fetch("/api/manage/approve",{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json"
+   },
+   body:JSON.stringify({id})
+  });
+
+  const data=await response.json();
+
+  if(!response.ok){
+   throw new Error(data.message||"Алдаа гарлаа");
+  }
+
+  alert("✓ MEMBER болголоо!");
+
+  loadApplications();
+  loadMembers();
+
+ }catch(error){
+
+  alert("✕ "+error.message);
+
+ }
+
+}
+
+
+async function rejectApplication(id){
+
+ if(!confirm("Энэ хүсэлтийг татгалзах уу?"))
+  return;
+
+ try{
+
+  const response=await fetch("/api/manage/reject",{
+   method:"POST",
+   headers:{
+    "Content-Type":"application/json"
+   },
+   body:JSON.stringify({id})
+  });
+
+  const data=await response.json();
+
+  if(!response.ok){
+   throw new Error(data.message||"Алдаа гарлаа");
+  }
+
+  alert("✕ Хүсэлтийг татгалзлаа.");
+
+  loadApplications();
+
+ }catch(error){
+
+  alert("✕ "+error.message);
+
+ }
+
+}
+
+
+async function manageLogout(){
+
+ await fetch("/api/manage/logout",{
+  method:"POST"
+ });
+
+ location.reload();
+
+}
+
+
+document.getElementById("manageNav").addEventListener("click",async function(event){
+
+ event.preventDefault();
+
+ const response=await fetch("/api/manage/me");
+ const data=await response.json();
+
+ if(!data.authorized){
+
+  alert("Эхлээд DISCORD LOGIN хийнэ үү.");
+
+  window.location.href="/auth/discord";
+
+  return;
+ }
+
+ document.getElementById("manage").style.display="block";
+
+ document.getElementById("manage").scrollIntoView({
+  behavior:"smooth"
+ });
+
+ loadApplications();
+
+});
+
 
 loadMembers();
-
-
-/* ==========================================
-   APPLICATION SYSTEM
-========================================== */
-
-const form =
-    document.getElementById("applyForm");
-
-const status =
-    document.getElementById("status");
-
-
-form.addEventListener(
-    "submit",
-    async function(event){
-
-        event.preventDefault();
-
-
-        status.style.color =
-            "#aaa";
-
-        status.innerText =
-            "Хүсэлт илгээж байна...";
-
-
-        const discordName =
-            document.getElementById(
-                "discordName"
-            ).value.trim();
-
-
-        const steam =
-            document.getElementById(
-                "steam"
-            ).value.trim();
-
-
-        const rank =
-            document.getElementById(
-                "rank"
-            ).value.trim();
-
-
-        const faceit =
-            document.getElementById(
-                "faceit"
-            ).value.trim();
-
-
-        const reason =
-            document.getElementById(
-                "reason"
-            ).value.trim();
-
-
-        try{
-
-            const response =
-                await fetch(
-                    "/api/apply",
-                    {
-                        method:"POST",
-
-                        headers:{
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body:JSON.stringify({
-
-                            discord:
-                                discordName,
-
-                            steam:
-                                steam,
-
-                            rank:
-                                rank,
-
-                            faceit:
-                                faceit,
-
-                            reason:
-                                reason
-
-                        })
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if(!response.ok){
-
-                throw new Error(
-                    data.message ||
-                    "Алдаа гарлаа"
-                );
-
-            }
-
-
-            status.style.color =
-                "#7cff8a";
-
-            status.innerText =
-                "✓ Хүсэлт амжилттай илгээгдлээ! MEMBER-д нэмэгдлээ.";
-
-
-            form.reset();
-
-
-            /*
-               Шинэ member-ийг
-               дахин серверээс авна.
-            */
-
-            await loadMembers();
-
-
-        }catch(error){
-
-            console.error(error);
-
-
-            status.style.color =
-                "#ff1744";
-
-            status.innerText =
-                "✕ " +
-                (
-                    error.message ||
-                    "Хүсэлт илгээгдэхэд алдаа гарлаа."
-                );
-
-        }
-
-    }
-);
+checkManage();
 
 </script>
 
