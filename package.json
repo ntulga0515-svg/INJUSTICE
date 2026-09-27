@@ -1,0 +1,12 @@
+{
+  "name": "injustice-clan",
+  "version": "1.0.0",
+  "description": "INJUSTICE Clan Website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
