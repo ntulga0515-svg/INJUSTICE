@@ -107,6 +107,34 @@ nav a:hover{
  color:#ff5475!important;
 }
 
+/* =========================
+   MOBILE MENU BUTTON
+========================= */
+
+.mobile-menu-btn{
+ display:none;
+ width:44px;
+ height:44px;
+ border:1px solid rgba(255,255,255,.12);
+ border-radius:10px;
+ background:rgba(15,13,20,.9);
+ color:white;
+ font-size:25px;
+ cursor:pointer;
+ align-items:center;
+ justify-content:center;
+ transition:.25s;
+}
+
+.mobile-menu-btn:hover{
+ border-color:var(--red);
+ color:var(--red);
+}
+
+/* =========================
+   HERO
+========================= */
+
 .hero{
  min-height:100vh;
  display:flex;
@@ -381,9 +409,9 @@ footer{
  border-top:1px solid rgba(255,255,255,.06);
 }
 
-footer strong{
- color:#aaa;
-}
+/* =========================
+   TABLET
+========================= */
 
 @media(max-width:1050px){
 
@@ -401,23 +429,88 @@ footer strong{
 
 }
 
+/* =========================
+   MOBILE
+========================= */
+
 @media(max-width:800px){
 
  nav{
-  padding:16px 4%;
- }
-
- nav ul{
-  gap:8px;
- }
-
- nav a{
-  font-size:11px;
+  padding:12px 4%;
+  height:68px;
  }
 
  .logo-text{
   font-size:17px;
   letter-spacing:2px;
+ }
+
+ /* 3 ZURAAS */
+ .mobile-menu-btn{
+  display:flex;
+ }
+
+ /* desktop menu nuuna */
+ nav ul{
+  display:none;
+
+  position:absolute;
+  top:76px;
+  left:4%;
+  right:4%;
+
+  flex-direction:column;
+  align-items:stretch;
+
+  gap:4px;
+
+  padding:10px;
+
+  background:rgba(8,7,11,.98);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:14px;
+
+  box-shadow:
+   0 20px 50px rgba(0,0,0,.65),
+   0 0 30px rgba(139,53,255,.08);
+
+  backdrop-filter:blur(20px);
+ }
+
+ /* menu neegdsen ued */
+ nav ul.mobile-open{
+  display:flex;
+ }
+
+ nav ul li{
+  width:100%;
+ }
+
+ nav ul li a{
+  display:block;
+  width:100%;
+
+  padding:14px 16px;
+
+  border-radius:9px;
+
+  font-size:14px;
+  letter-spacing:1px;
+
+  color:#aaa;
+
+  background:transparent;
+ }
+
+ nav ul li a:hover{
+  background:rgba(255,23,68,.08);
+  color:white;
+  text-shadow:none;
+ }
+
+ .nav-login{
+  text-align:center;
+  margin-top:4px;
  }
 
  .grid{
@@ -426,14 +519,19 @@ footer strong{
 
 }
 
+/* =========================
+   SMALL PHONE
+========================= */
+
 @media(max-width:500px){
 
  nav{
-  overflow-x:auto;
+  padding:12px 5%;
  }
 
  nav ul{
-  display:flex;
+  left:5%;
+  right:5%;
  }
 
  .grid{
@@ -453,6 +551,22 @@ footer strong{
   padding:80px 5%;
  }
 
+ .hero{
+  padding-top:110px;
+ }
+
+ .hero p{
+  font-size:18px;
+ }
+
+ .buttons{
+  flex-direction:column;
+ }
+
+ .buttons .btn{
+  width:100%;
+ }
+
 }
 </style>
 </head>
@@ -465,7 +579,17 @@ footer strong{
 INJUST<span>ICE</span>
 </div>
 
-<ul>
+<!-- MOBILE 3-LINE BUTTON -->
+<button
+ class="mobile-menu-btn"
+ id="mobileMenuBtn"
+ type="button"
+ aria-label="Open menu"
+>
+☰
+</button>
+
+<ul id="navMenu">
 
 <li>
 <a href="#home">
@@ -554,7 +678,7 @@ DISCORD LOGIN
 
 <img
 class="hero-logo"
-src="https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg?ex=6aba47e2&is=6ab8f662&hm=eaf8b4693a0a2a0f41b5681b99ec849d7569b63d3d69ef391221bb21ff209877&"
+src="https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg?ex=6aba47e2&is=6ab8f662&hm=eaf8b4693a0a2a0f41b5681b99ec849d7569b63d3d69ef391221bb21bb21ff209877&"
 alt="INJUSTICE"
 >
 
@@ -841,6 +965,52 @@ INJUSTICE
 
 <script>
 
+/* =========================
+   MOBILE MENU
+========================= */
+
+const mobileMenuBtn =
+ document.getElementById("mobileMenuBtn");
+
+const navMenu =
+ document.getElementById("navMenu");
+
+mobileMenuBtn.addEventListener("click", function(){
+
+ navMenu.classList.toggle("mobile-open");
+
+ if(navMenu.classList.contains("mobile-open")){
+
+  mobileMenuBtn.innerHTML="✕";
+
+ }else{
+
+  mobileMenuBtn.innerHTML="☰";
+
+ }
+
+});
+
+
+/* Menu item darhaar menu haagdana */
+
+document.querySelectorAll("#navMenu a").forEach(function(link){
+
+ link.addEventListener("click", function(){
+
+  navMenu.classList.remove("mobile-open");
+
+  mobileMenuBtn.innerHTML="☰";
+
+ });
+
+});
+
+
+/* =========================
+   APPLICATION
+========================= */
+
 const form = document.getElementById("applyForm");
 const status = document.getElementById("status");
 
@@ -913,6 +1083,10 @@ form.addEventListener("submit", async function(event){
 });
 
 
+/* =========================
+   SECURITY
+========================= */
+
 function escapeHtml(value){
 
  return String(value || "")
@@ -924,6 +1098,10 @@ function escapeHtml(value){
 
 }
 
+
+/* =========================
+   MEMBERS
+========================= */
 
 async function loadMembers(){
 
