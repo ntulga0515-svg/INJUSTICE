@@ -1,23 +1,13 @@
 <!DOCTYPE html>
 <html lang="mn">
-
 <head>
-
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
->
-
-<title>INJUSTICE — Tiers</title>
-
-<link
-href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap"
-rel="stylesheet"
->
+<title>TIERS — INJUSTICE</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap');
 
 *{
     margin:0;
@@ -25,469 +15,449 @@ rel="stylesheet"
     box-sizing:border-box;
 }
 
+:root{
+    --red:#ff1744;
+    --purple:#8b35ff;
+    --bg:#050507;
+    --card:#0d0a11;
+    --text:#f5f5f5;
+    --muted:#999;
+}
+
 body{
-
     min-height:100vh;
-
     background:
-        radial-gradient(
-            circle at 80% 10%,
-            rgba(139,53,255,.18),
-            transparent 30%
-        ),
-        radial-gradient(
-            circle at 10% 50%,
-            rgba(255,23,68,.14),
-            transparent 30%
-        ),
-        #050507;
-
-    color:#f5f5f5;
-
+        radial-gradient(circle at 80% 10%,rgba(139,53,255,.18),transparent 30%),
+        radial-gradient(circle at 10% 50%,rgba(255,23,68,.14),transparent 30%),
+        var(--bg);
+    color:var(--text);
     font-family:'Rajdhani',sans-serif;
+    overflow-x:hidden;
+}
 
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.035;
+    background-image:
+        linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+    background-size:45px 45px;
 }
 
 nav{
-
-    position:sticky;
-
+    position:fixed;
     top:0;
-
-    z-index:10;
-
+    left:0;
+    width:100%;
+    z-index:999;
     display:flex;
-
     justify-content:space-between;
-
     align-items:center;
-
-    padding:20px 7%;
-
-    background:rgba(5,5,7,.88);
-
+    padding:18px 5%;
+    background:rgba(5,5,7,.85);
     backdrop-filter:blur(15px);
-
     border-bottom:1px solid rgba(255,255,255,.06);
-
 }
 
-.logo{
-
+.logo-text{
     font-family:'Orbitron';
-
+    font-size:22px;
     font-weight:900;
-
     letter-spacing:4px;
-
 }
 
-.logo span{
-    color:#ff1744;
+.logo-text span{
+    color:var(--red);
 }
 
-.nav{
-
+nav ul{
     display:flex;
-
-    gap:10px;
-
+    gap:22px;
+    list-style:none;
+    align-items:center;
 }
 
-.nav a{
-
-    color:white;
-
+nav a{
+    color:#aaa;
     text-decoration:none;
-
-    padding:10px 18px;
-
-    background:#111018;
-
-    border:1px solid #29232e;
-
-    border-radius:8px;
-
-    font-weight:800;
-
+    font-weight:700;
+    letter-spacing:1px;
+    transition:.25s;
 }
 
-.container{
+nav a:hover{
+    color:white;
+    text-shadow:0 0 15px var(--red);
+}
 
-    width:min(1150px,90%);
+.active{
+    color:#ff5475!important;
+}
 
+.page{
+    max-width:1250px;
     margin:auto;
-
-    padding:70px 0;
-
+    padding:145px 25px 80px;
 }
 
 .title{
-
     text-align:center;
-
-    margin-bottom:50px;
-
+    margin-bottom:45px;
 }
 
 .title small{
-
-    color:#ff1744;
-
+    color:var(--red);
     font-family:'Orbitron';
-
     letter-spacing:4px;
-
 }
 
 .title h1{
-
     font-family:'Orbitron';
-
-    font-size:clamp(45px,8vw,85px);
-
+    font-size:48px;
     margin-top:10px;
-
-    background:
-        linear-gradient(
-            100deg,
-            #fff,
-            #ff1744,
-            #8b35ff
-        );
-
-    -webkit-background-clip:text;
-
-    color:transparent;
-
 }
 
-
-/* SELECTOR */
-
-.selector{
-
-    max-width:700px;
-
-    margin:0 auto 70px;
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(20,17,25,.96),
-            rgba(9,8,12,.96)
-        );
-
-    border:1px solid rgba(255,255,255,.07);
-
-    border-radius:18px;
-
-    padding:25px;
-
-}
-
-.selector label{
-
+.back{
     display:block;
+    width:max-content;
+    margin:0 auto 35px;
+    padding:11px 22px;
+    background:#111018;
+    border:1px solid #29232e;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:800;
+    transition:.25s;
+}
 
-    color:#999;
+.back:hover{
+    transform:translateY(-3px);
+    border-color:var(--purple);
+}
 
-    margin-bottom:8px;
+.manage-box{
+    max-width:850px;
+    margin:0 auto 35px;
+    padding:20px;
+    border:1px solid rgba(139,53,255,.3);
+    background:rgba(139,53,255,.08);
+    border-radius:12px;
+}
 
+.manage-box label{
+    display:block;
+    color:#aaa;
+    font-size:13px;
+    letter-spacing:2px;
+    margin-bottom:10px;
 }
 
 select{
-
     width:100%;
-
-    padding:15px;
-
-    background:#0c0a0f;
-
-    color:white;
-
-    border:1px solid #28232d;
-
-    border-radius:9px;
-
-    font-family:'Rajdhani';
-
-    font-size:17px;
-
-    margin-bottom:15px;
-
-}
-
-.save{
-
-    width:100%;
-
     padding:14px;
-
-    border:0;
-
-    border-radius:8px;
-
+    background:#0c0a0f;
     color:white;
-
+    border:1px solid #302936;
+    border-radius:8px;
     font-family:'Rajdhani';
-
-    font-size:17px;
-
-    font-weight:900;
-
-    cursor:pointer;
-
-    background:
-        linear-gradient(
-            100deg,
-            #8b001d,
-            #ff1744
-        );
-
+    font-size:16px;
+    outline:none;
 }
 
-#status{
+select:focus{
+    border-color:var(--purple);
+}
 
-    text-align:center;
-
-    min-height:24px;
-
+.assign-btn{
+    width:100%;
     margin-top:12px;
-
-    font-weight:700;
-
+    padding:13px;
+    border:0;
+    border-radius:8px;
+    background:linear-gradient(100deg,#8b001d,#ff1744);
+    color:white;
+    font-family:'Rajdhani';
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.25s;
 }
 
+.assign-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 30px rgba(255,23,68,.25);
+}
 
-/* TIERS */
+.status{
+    text-align:center;
+    min-height:24px;
+    margin-top:12px;
+    font-weight:700;
+}
 
 .tier-section{
-
-    margin-bottom:65px;
-
+    margin-top:60px;
 }
 
 .tier-title{
-
     display:flex;
-
     align-items:center;
-
     gap:15px;
-
     margin-bottom:25px;
+}
 
+.tier-title span{
+    color:var(--red);
+    font-family:'Orbitron';
+    font-size:14px;
+    letter-spacing:3px;
 }
 
 .tier-title h2{
-
     font-family:'Orbitron';
-
     font-size:28px;
-
 }
 
 .tier-line{
-
     height:1px;
-
     flex:1;
-
-    background:
-        linear-gradient(
-            90deg,
-            rgba(255,23,68,.5),
-            transparent
-        );
-
+    background:rgba(255,255,255,.08);
 }
 
 .grid{
-
     display:grid;
-
-    grid-template-columns:
-        repeat(4,1fr);
-
+    grid-template-columns:repeat(4,1fr);
     gap:18px;
-
 }
 
 .card{
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(20,17,25,.95),
-            rgba(9,8,12,.95)
-        );
-
+    background:linear-gradient(
+        145deg,
+        rgba(20,17,25,.95),
+        rgba(9,8,12,.95)
+    );
     border:1px solid rgba(255,255,255,.07);
-
     border-radius:16px;
-
     padding:25px;
-
-    text-align:center;
-
     transition:.25s;
-
+    text-align:center;
 }
 
 .card:hover{
-
-    transform:translateY(-7px);
-
-    border-color:
-        rgba(255,23,68,.45);
-
-    box-shadow:
-        0 15px 50px rgba(0,0,0,.5);
-
-}
-
-.avatar-link{
-
-    display:block;
-
-    text-decoration:none;
-
+    transform:translateY(-6px);
+    border-color:rgba(255,23,68,.4);
+    box-shadow:0 15px 50px rgba(0,0,0,.45);
 }
 
 .avatar{
-
     width:90px;
-
     height:90px;
-
     object-fit:cover;
-
     border-radius:50%;
-
-    border:2px solid #ff1744;
-
-    box-shadow:
-        0 0 25px
-        rgba(255,23,68,.25);
-
-    transition:.25s;
-
-}
-
-.avatar-link:hover .avatar{
-
-    transform:scale(1.08);
-
-    box-shadow:
-        0 0 35px
-        rgba(139,53,255,.55);
-
+    border:2px solid var(--red);
+    margin:0 auto 15px;
+    box-shadow:0 0 20px rgba(255,23,68,.25);
 }
 
 .name{
-
-    font-family:'Orbitron';
-
     color:white;
-
+    text-decoration:none;
+    font-family:'Orbitron';
     font-size:15px;
-
-    margin-top:15px;
-
+    word-break:break-word;
 }
 
-.member-label{
+.name:hover{
+    color:var(--red);
+}
 
+.role{
+    margin-top:8px;
     color:#a56cff;
-
     font-size:12px;
-
     letter-spacing:2px;
-
-    margin-top:6px;
-
 }
 
 .empty{
-
-    color:#666;
-
-    text-align:center;
-
-    padding:30px;
-
     grid-column:1/-1;
-
+    text-align:center;
+    color:#666;
+    padding:35px;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:15px;
+    background:#0d0a11;
 }
 
+.loading{
+    text-align:center;
+    color:#777;
+    padding:50px;
+}
 
-@media(max-width:850px){
+.error{
+    color:#ff1744;
+}
 
-    .grid{
-        grid-template-columns:
-            repeat(2,1fr);
+@media(max-width:1050px){
+
+    nav ul{
+        gap:12px;
     }
 
+    nav a{
+        font-size:13px;
+    }
+
+    .grid{
+        grid-template-columns:repeat(3,1fr);
+    }
+}
+
+@media(max-width:800px){
+
+    nav{
+        padding:16px 4%;
+    }
+
+    nav ul{
+        gap:9px;
+    }
+
+    nav a{
+        font-size:11px;
+    }
+
+    .logo-text{
+        font-size:17px;
+        letter-spacing:2px;
+    }
+
+    .grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .title h1{
+        font-size:38px;
+    }
 }
 
 @media(max-width:500px){
+
+    nav{
+        overflow-x:auto;
+    }
+
+    nav ul{
+        flex-shrink:0;
+    }
+
+    .page{
+        padding-left:15px;
+        padding-right:15px;
+    }
 
     .grid{
         grid-template-columns:1fr;
     }
 
-    .container{
-        width:92%;
+    .tier-title h2{
+        font-size:22px;
     }
-
 }
-
 </style>
-
 </head>
-
 
 <body>
 
-
 <nav>
 
-<div class="logo">
+<div class="logo-text">
 INJUST<span>ICE</span>
 </div>
 
-<div class="nav">
+<ul>
 
+<li>
 <a href="/">
-HOME
+НҮҮР
 </a>
+</li>
 
+<li>
+<a href="/#members">
+ГИШҮҮД
+</a>
+</li>
+
+<li>
+<a href="/#rules">
+ДҮРЭМ
+</a>
+</li>
+
+<li>
+<a href="/#apply">
+ХҮСЭЛТ
+</a>
+</li>
+
+<li>
+<a
+href="https://discord.gg/kED9f66v2"
+target="_blank"
+>
+DISCORD
+</a>
+</li>
+
+<li>
 <a href="/manage.html">
 MANAGE
 </a>
+</li>
 
-</div>
+<li>
+<a href="/tiers.html" class="active">
+TIERS
+</a>
+</li>
+
+</ul>
 
 </nav>
 
 
-<main class="container">
-
+<main class="page">
 
 <div class="title">
 
-<small>INJUSTICE CLAN</small>
+<small>
+INJUSTICE CLAN
+</small>
 
-<h1>TIERS</h1>
+<h1>
+TIERS
+</h1>
 
 </div>
 
 
+<a
+href="/manage.html"
+class="back"
+>
+← BACK TO MANAGE
+</a>
+
+
 <div
-class="selector"
-id="selector"
-style="display:none"
+class="manage-box"
+id="manageBox"
+style="display:none;"
 >
 
 <label>
@@ -503,29 +473,33 @@ MEMBER СОНГОХ
 </select>
 
 
-<label>
+<label style="margin-top:18px;">
 TIER СОНГОХ
 </label>
 
 <select id="tierSelect">
 
-<option value="TIER 1">
+<option value="">
+-- TIER СОНГОХ --
+</option>
+
+<option value="1">
 TIER 1
 </option>
 
-<option value="TIER 2">
+<option value="2">
 TIER 2
 </option>
 
-<option value="TIER 3">
+<option value="3">
 TIER 3
 </option>
 
-<option value="TIER 4">
+<option value="4">
 TIER 4
 </option>
 
-<option value="TIER 5">
+<option value="5">
 TIER 5
 </option>
 
@@ -533,34 +507,38 @@ TIER 5
 
 
 <button
-class="save"
-onclick="saveTier()"
+class="assign-btn"
+onclick="assignTier()"
 >
-SAVE TIER
+TIER ОНООХ
 </button>
 
-
-<div id="status"></div>
+<div
+class="status"
+id="status"
+></div>
 
 </div>
 
 
 <div id="tiersContainer">
 
-<div class="empty">
-TIERS ачаалж байна...
+<div class="loading">
+Members ачаалж байна...
 </div>
 
 </div>
-
 
 </main>
 
 
 <script>
 
+const fallbackAvatar =
+"https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg";
 
-let members = [];
+
+let allMembers = [];
 
 
 function escapeHtml(value){
@@ -575,14 +553,50 @@ function escapeHtml(value){
 }
 
 
-function createCard(member){
+async function checkManage(){
+
+    try{
+
+        const response =
+            await fetch("/api/manage/me");
+
+        const data =
+            await response.json();
+
+        if(data.authorized){
+
+            document.getElementById(
+                "manageBox"
+            ).style.display="block";
+
+            return true;
+        }
+
+        return false;
+
+    }catch(error){
+
+        console.error(error);
+
+        return false;
+    }
+
+}
+
+
+function createMemberCard(member){
+
+    const avatar =
+        member.avatar || fallbackAvatar;
+
+    const name =
+        member.name || "Unknown";
 
     return `
 
         <div class="card">
 
             <a
-                class="avatar-link"
                 href="${escapeHtml(member.steam)}"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -590,165 +604,129 @@ function createCard(member){
 
                 <img
                     class="avatar"
-                    src="${escapeHtml(
-                        member.avatar
-                    )}"
-                    alt="${escapeHtml(
-                        member.name
-                    )}"
-                    onerror="
-                        this.src='https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg'
-                    "
+                    src="${escapeHtml(avatar)}"
+                    alt="${escapeHtml(name)}"
+                    onerror="this.src='${fallbackAvatar}'"
                 >
 
                 <div class="name">
-                    ${escapeHtml(
-                        member.name
-                    )}
+                    ${escapeHtml(name)}
                 </div>
 
             </a>
 
-            <div class="member-label">
-                MEMBER
+            <div class="role">
+                ${escapeHtml(member.role || "MEMBER")}
             </div>
 
         </div>
 
     `;
-
 }
 
 
-function renderTiers(){
+function renderTiers(members){
 
     const container =
         document.getElementById(
             "tiersContainer"
         );
 
+    let html="";
 
-    const tiers = {
+    for(let tier=1;tier<=5;tier++){
 
-        "TIER 1": [],
+        const tierMembers =
+            members.filter(
+                member =>
+                    String(member.tier) ===
+                    String(tier)
+            );
 
-        "TIER 2": [],
+        html += `
 
-        "TIER 3": [],
+            <section class="tier-section">
 
-        "TIER 4": [],
+                <div class="tier-title">
 
-        "TIER 5": []
+                    <span>
+                        TIER ${tier}
+                    </span>
 
-    };
+                    <h2>
+                        TIER ${tier}
+                    </h2>
 
+                    <div class="tier-line"></div>
 
-    members.forEach(member => {
+                </div>
 
-        if(
-            member.tier &&
-            tiers[member.tier]
-        ){
+                <div class="grid">
 
-            tiers[member.tier]
-                .push(member);
+                    ${
+                        tierMembers.length
+                        ?
+                        tierMembers
+                            .map(createMemberCard)
+                            .join("")
+                        :
+                        `
+                            <div class="empty">
+                                TIER ${tier}-т одоогоор MEMBER алга.
+                            </div>
+                        `
+                    }
 
-        }
+                </div>
 
-    });
-
-
-    container.innerHTML = "";
-
-
-    Object.keys(tiers).forEach(tier => {
-
-        const section =
-            document.createElement("section");
-
-        section.className =
-            "tier-section";
-
-
-        const list =
-            tiers[tier];
-
-
-        section.innerHTML = `
-
-            <div class="tier-title">
-
-                <h2>
-                    ${tier}
-                </h2>
-
-                <div class="tier-line"></div>
-
-            </div>
-
-            <div class="grid">
-
-                ${
-                    list.length
-                    ?
-                    list
-                        .map(createCard)
-                        .join("")
-                    :
-                    `
-                        <div class="empty">
-                            Одоогоор хүн алга.
-                        </div>
-                    `
-                }
-
-            </div>
+            </section>
 
         `;
+    }
 
-
-        container.appendChild(
-            section
-        );
-
-    });
-
+    container.innerHTML=html;
 }
 
 
-async function checkManage(){
+function populateMembers(members){
 
-    try{
-
-        const response =
-            await fetch(
-                "/api/manage/me"
-            );
-
-        const data =
-            await response.json();
-
-
-        if(data.authorized){
-
-            document
-                .getElementById(
-                    "selector"
-                )
-                .style.display =
-                "block";
-
-        }
-
-    }
-    catch(error){
-
-        console.log(
-            "Not logged in."
+    const select =
+        document.getElementById(
+            "memberSelect"
         );
 
-    }
+    const memberList =
+        members.filter(
+            member =>
+                String(member.role).toUpperCase() ===
+                "MEMBER"
+        );
 
+    select.innerHTML=`
+
+        <option value="">
+            -- MEMBER СОНГОХ --
+        </option>
+
+        ${
+            memberList.map(member => `
+
+                <option value="${escapeHtml(member.steam)}">
+
+                    ${escapeHtml(member.name || member.steam)}
+
+                    ${
+                        member.tier
+                        ? ` — TIER ${escapeHtml(member.tier)}`
+                        : ""
+                    }
+
+                </option>
+
+            `).join("")
+        }
+
+    `;
 }
 
 
@@ -757,87 +735,51 @@ async function loadMembers(){
     try{
 
         const response =
-            await fetch(
-                "/api/members"
-            );
+            await fetch("/api/members");
 
-        members =
+        if(!response.ok){
+
+            throw new Error(
+                "Members API error"
+            );
+        }
+
+        allMembers =
             await response.json();
 
+        renderTiers(allMembers);
 
-        renderTiers();
+        populateMembers(allMembers);
 
-
-        const select =
-            document.getElementById(
-                "memberSelect"
-            );
-
-
-        const memberList =
-            members.filter(
-                member =>
-                    member.role ===
-                    "MEMBER"
-            );
-
-
-        memberList.forEach(member => {
-
-            const option =
-                document.createElement(
-                    "option"
-                );
-
-            option.value =
-                member.steam;
-
-            option.textContent =
-                `${member.name} ${
-                    member.tier
-                    ? "— " + member.tier
-                    : ""
-                }`;
-
-            select.appendChild(
-                option
-            );
-
-        });
-
-    }
-    catch(error){
+    }catch(error){
 
         console.error(error);
 
-        document
-            .getElementById(
-                "tiersContainer"
-            )
-            .innerHTML = `
-                <div class="empty">
-                    MEMBER мэдээлэл ачаалж чадсангүй.
-                </div>
-            `;
+        document.getElementById(
+            "tiersContainer"
+        ).innerHTML=`
 
+            <div class="loading error">
+                Members ачаалж чадсангүй.
+            </div>
+
+        `;
     }
 
 }
 
 
-async function saveTier(){
+async function assignTier(){
 
     const steam =
         document.getElementById(
             "memberSelect"
         ).value;
 
-
     const tier =
         document.getElementById(
             "tierSelect"
         ).value;
-
 
     const status =
         document.getElementById(
@@ -847,22 +789,30 @@ async function saveTier(){
 
     if(!steam){
 
-        status.style.color =
-            "#ff1744";
+        status.style.color="#ff1744";
 
-        status.innerText =
+        status.innerText=
             "MEMBER сонгоно уу.";
 
         return;
-
     }
 
 
-    status.style.color =
-        "#aaa";
+    if(!tier){
 
-    status.innerText =
-        "Хадгалж байна...";
+        status.style.color="#ff1744";
+
+        status.innerText=
+            "TIER сонгоно уу.";
+
+        return;
+    }
+
+
+    status.style.color="#aaa";
+
+    status.innerText=
+        "Tier хадгалж байна...";
 
 
     try{
@@ -878,11 +828,10 @@ async function saveTier(){
                             "application/json"
                     },
 
-                    body:
-                        JSON.stringify({
-                            steam,
-                            tier
-                        })
+                    body:JSON.stringify({
+                        steam:steam,
+                        tier:tier
+                    })
                 }
             );
 
@@ -895,44 +844,52 @@ async function saveTier(){
 
             throw new Error(
                 data.message ||
-                "Алдаа гарлаа."
+                "Алдаа гарлаа"
             );
-
         }
 
 
-        status.style.color =
-            "#7cff8a";
+        status.style.color="#7cff8a";
 
-        status.innerText =
-            "✓ " +
-            data.message;
+        status.innerText=
+            `✓ TIER ${tier} амжилттай оноолоо.`;
 
 
         await loadMembers();
 
-    }
-    catch(error){
 
-        status.style.color =
-            "#ff1744";
+        document.getElementById(
+            "tierSelect"
+        ).value="";
 
-        status.innerText =
-            "✕ " +
-            error.message;
+
+    }catch(error){
+
+        console.error(error);
+
+        status.style.color="#ff1744";
+
+        status.innerText=
+            "✕ " + error.message;
 
     }
 
 }
 
 
-checkManage();
+async function init(){
 
-loadMembers();
+    const authorized =
+        await checkManage();
+
+    await loadMembers();
+
+}
+
+
+init();
 
 </script>
 
-
 </body>
-
 </html>
