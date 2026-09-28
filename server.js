@@ -322,8 +322,11 @@ app.get("/api/members", async (req, res) => {
         }
 
         result.push({
+
             role: member.role,
+
             steam: member.steam,
+
             name:
                 profile?.name ||
                 member.name ||
@@ -332,15 +335,22 @@ app.get("/api/members", async (req, res) => {
                     .filter(Boolean)
                     .pop() ||
                 "INJUSTICE MEMBER",
+
             avatar:
                 profile?.avatar ||
-                "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg"
+                member.avatar ||
+                "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg",
+
+            tier:
+                member.tier || null
+
         });
+
     }
 
     res.json(result);
-});
 
+});
 
 /* =========================
    DISCORD WEBHOOK
@@ -894,8 +904,7 @@ app.get("/auth/discord/callback", async (req, res) => {
         );
 
 
-        res.redirect(
-            "/?manage=1#manage"
+       res.redirect("/manage.html");
         );
 
 
@@ -1219,6 +1228,159 @@ app.post(
     }
 );
 
+/* =========================
+   TIER SYSTEM
+========================= */
+
+
+/*
+   GET ALL MEMBER TIERS
+*/
+
+app.get(
+    "/api/manage/tiers",
+    (req, res) => {
+
+        const user =
+            getManageUser(req);
+
+        if (!user) {
+
+            return res.status(403).json({
+                message: "Access denied."
+            });
+
+        }
+
+
+        const result = members
+            .filter(member =>
+                member.role === "MEMBER"
+            )
+            .map(member => ({
+
+                steam: member.steam,
+
+                name:
+                    member.name ||
+                    member.steam
+                        .split("/")
+                        .filter(Boolean)
+                        .pop() ||
+                    "INJUSTICE MEMBER",
+
+                avatar:
+                    member.avatar || "",
+
+                tier:
+                    member.tier || null
+
+            }));
+
+
+        res.json(result);
+
+    }
+);
+
+
+
+/*
+   SAVE MEMBER TIER
+*/
+
+app.post(
+    "/api/manage/tiers",
+    (req, res) => {
+
+        const user =
+            getManageUser(req);
+
+        if (!user) {
+
+            return res.status(403).json({
+                message: "Access denied."
+            });
+
+        }
+
+
+        const {
+            steam,
+            tier
+        } = req.body || {};
+
+
+        const allowedTiers = [
+            "TIER 1",
+            "TIER 2",
+            "TIER 3",
+            "TIER 4",
+            "TIER 5"
+        ];
+
+
+        if (!steam || !tier) {
+
+            return res.status(400).json({
+                message:
+                    "Member болон Tier сонгоно уу."
+            });
+
+        }
+
+
+        if (!allowedTiers.includes(tier)) {
+
+            return res.status(400).json({
+                message:
+                    "Tier буруу байна."
+            });
+
+        }
+
+
+        const member =
+            members.find(
+                item =>
+                    item.steam.toLowerCase() ===
+                    String(steam).toLowerCase() &&
+                    item.role === "MEMBER"
+            );
+
+
+        if (!member) {
+
+            return res.status(404).json({
+                message:
+                    "MEMBER олдсонгүй."
+            });
+
+        }
+
+
+        member.tier = tier;
+
+
+        writeJSON(
+            MEMBERS_FILE,
+            members
+        );
+
+
+        res.json({
+
+            success: true,
+
+            message:
+                `${member.name || "Member"} → ${tier}`,
+
+            member
+
+        });
+
+    }
+);
 
 /* =========================
    LOGOUT
