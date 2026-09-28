@@ -9,14 +9,65 @@ const PORT = process.env.PORT || 10000;
 
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
 
-const DATA_DIR = path.join(__dirname, "data");
-const MEMBERS_FILE = path.join(DATA_DIR, "members.json");
-const APPLICATIONS_FILE = path.join(DATA_DIR, "applications.json");
+/* =========================
+   NO CACHE
+========================= */
+
+app.use((req, res, next) => {
+    res.setHeader(
+        "Cache-Control",
+        "no-store, no-cache, must-revalidate, proxy-revalidate"
+    );
+
+    res.setHeader(
+        "Pragma",
+        "no-cache"
+    );
+
+    res.setHeader(
+        "Expires",
+        "0"
+    );
+
+    next();
+});
+
+app.use(
+    express.static(
+        path.join(__dirname, "public"),
+        {
+            etag: false,
+            lastModified: false,
+            maxAge: 0
+        }
+    )
+);
+
+
+/* =========================
+   DATA
+========================= */
+
+const DATA_DIR =
+    path.join(__dirname, "data");
+
+const MEMBERS_FILE =
+    path.join(DATA_DIR, "members.json");
+
+const APPLICATIONS_FILE =
+    path.join(DATA_DIR, "applications.json");
+
 
 if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+
+    fs.mkdirSync(
+        DATA_DIR,
+        {
+            recursive: true
+        }
+    );
+
 }
 
 
@@ -154,6 +205,10 @@ const DEFAULT_MEMBERS = [
 ];
 
 
+/* =========================
+   JSON
+========================= */
+
 function readJSON(file, fallback) {
 
     try {
@@ -162,23 +217,38 @@ function readJSON(file, fallback) {
 
             fs.writeFileSync(
                 file,
-                JSON.stringify(fallback, null, 2)
+                JSON.stringify(
+                    fallback,
+                    null,
+                    2
+                )
             );
 
             return fallback;
         }
 
-        const raw = fs.readFileSync(file, "utf8");
+        const raw =
+            fs.readFileSync(
+                file,
+                "utf8"
+            );
 
         if (!raw.trim()) {
             return fallback;
         }
 
-        return JSON.parse(raw);
+        const parsed =
+            JSON.parse(raw);
+
+        return parsed;
 
     } catch (error) {
 
-        console.error("JSON READ ERROR:", file, error);
+        console.error(
+            "JSON READ ERROR:",
+            file,
+            error
+        );
 
         return fallback;
     }
@@ -189,24 +259,65 @@ function writeJSON(file, data) {
 
     fs.writeFileSync(
         file,
-        JSON.stringify(data, null, 2)
+        JSON.stringify(
+            data,
+            null,
+            2
+        )
     );
+
 }
 
 
-let members = readJSON(
-    MEMBERS_FILE,
-    DEFAULT_MEMBERS
-);
+/* =========================
+   LOAD DATA
+========================= */
 
-let applications = readJSON(
-    APPLICATIONS_FILE,
-    []
-);
+let members =
+    readJSON(
+        MEMBERS_FILE,
+        DEFAULT_MEMBERS
+    );
+
+
+let applications =
+    readJSON(
+        APPLICATIONS_FILE,
+        []
+    );
 
 
 /* =========================
-   STEAM API
+   NORMALIZE MEMBERS
+========================= */
+
+members =
+    members.map(member => {
+
+        return {
+
+            role:
+                member.role || "MEMBER",
+
+            steam:
+                member.steam || "",
+
+            name:
+                member.name || "",
+
+            avatar:
+                member.avatar || "",
+
+            tier:
+                member.tier || null
+
+        };
+
+    });
+
+
+/* =========================
+   STEAM
 ========================= */
 
 const STEAM_API_KEY =
@@ -215,40 +326,50 @@ const STEAM_API_KEY =
 
 function extractSteamID(url) {
 
-    const match = String(url || "").match(
-        /steamcommunity\.com\/profiles\/(\d+)/i
-    );
+    const match =
+        String(url || "").match(
+            /steamcommunity\.com\/profiles\/(\d+)/i
+        );
 
-    return match ? match[1] : null;
+    return match
+        ? match[1]
+        : null;
 }
 
 
 function extractVanity(url) {
 
-    const match = String(url || "").match(
-        /steamcommunity\.com\/id\/([^/?#]+)/i
-    );
+    const match =
+        String(url || "").match(
+            /steamcommunity\.com\/id\/([^/?#]+)/i
+        );
 
-    return match ? match[1] : null;
+    return match
+        ? match[1]
+        : null;
 }
 
 
 async function steamRequest(url) {
 
-    const response = await fetch(url);
+    const response =
+        await fetch(url);
 
     if (!response.ok) {
 
         throw new Error(
             `Steam API HTTP ${response.status}`
         );
+
     }
 
     return response.json();
 }
 
 
-async function getSteamProfile(steamURL) {
+async function getSteamProfile(
+    steamURL
+) {
 
     if (!STEAM_API_KEY) {
         return null;
@@ -257,14 +378,17 @@ async function getSteamProfile(steamURL) {
     try {
 
         let steamID =
-            extractSteamID(steamURL);
+            extractSteamID(
+                steamURL
+            );
 
 
         if (!steamID) {
 
             const vanity =
-                extractVanity(steamURL);
-
+                extractVanity(
+                    steamURL
+                );
 
             if (!vanity) {
                 return null;
@@ -278,7 +402,9 @@ async function getSteamProfile(steamURL) {
 
 
             const resolved =
-                await steamRequest(resolveURL);
+                await steamRequest(
+                    resolveURL
+                );
 
 
             if (
@@ -292,6 +418,7 @@ async function getSteamProfile(steamURL) {
 
             steamID =
                 resolved.response.steamid;
+
         }
 
 
@@ -302,7 +429,9 @@ async function getSteamProfile(steamURL) {
 
 
         const result =
-            await steamRequest(summaryURL);
+            await steamRequest(
+                summaryURL
+            );
 
 
         const player =
@@ -331,6 +460,7 @@ async function getSteamProfile(steamURL) {
 
         };
 
+
     } catch (error) {
 
         console.error(
@@ -340,6 +470,7 @@ async function getSteamProfile(steamURL) {
 
         return null;
     }
+
 }
 
 
@@ -351,54 +482,86 @@ app.get(
     "/api/members",
     async (req, res) => {
 
-        const result = [];
+        try {
+
+            const result = [];
 
 
-        for (const member of members) {
+            for (
+                const member
+                of members
+            ) {
 
-            let profile = null;
+                let profile =
+                    null;
 
 
-            if (STEAM_API_KEY) {
+                if (STEAM_API_KEY) {
 
-                profile =
-                    await getSteamProfile(
+                    profile =
+                        await getSteamProfile(
+                            member.steam
+                        );
+
+                }
+
+
+                result.push({
+
+                    role:
+                        member.role,
+
+                    steam:
+                        member.steam,
+
+                    name:
+                        profile?.name ||
+                        member.name ||
                         member.steam
-                    );
+                            .split("/")
+                            .filter(Boolean)
+                            .pop() ||
+                        "INJUSTICE MEMBER",
+
+                    avatar:
+                        profile?.avatar ||
+                        member.avatar ||
+                        "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg",
+
+                    /*
+                       IMPORTANT
+                       TIER эндээс шууд members.json-оос
+                       гарч байна.
+                    */
+
+                    tier:
+                        member.tier || null
+
+                });
+
             }
 
 
-            result.push({
+            return res.json(
+                result
+            );
 
-                role:
-                    member.role,
 
-                steam:
-                    member.steam,
+        } catch (error) {
 
-                name:
-                    profile?.name ||
-                    member.name ||
-                    member.steam
-                        .split("/")
-                        .filter(Boolean)
-                        .pop() ||
-                    "INJUSTICE MEMBER",
+            console.error(
+                "MEMBERS API ERROR:",
+                error
+            );
 
-                avatar:
-                    profile?.avatar ||
-                    member.avatar ||
-                    "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg",
+            return res.status(500).json({
 
-                tier:
-                    member.tier || null
+                message:
+                    "Members API error."
 
             });
 
         }
-
-
-        res.json(result);
 
     }
 );
@@ -531,7 +694,9 @@ async function sendApplicationWebhook(
             "DISCORD WEBHOOK ERROR:",
             error.message
         );
+
     }
+
 }
 
 
@@ -568,11 +733,12 @@ app.post(
                         "Бүх талбарыг бөглөнө үү."
 
                 });
+
             }
 
 
             if (
-                !steam.includes(
+                !String(steam).includes(
                     "steamcommunity.com/"
                 )
             ) {
@@ -583,6 +749,7 @@ app.post(
                         "Steam link буруу байна."
 
                 });
+
             }
 
 
@@ -590,9 +757,9 @@ app.post(
                 applications.find(
                     application =>
                         application.status ===
-                            "pending" &&
+                        "pending" &&
                         application.steam.toLowerCase() ===
-                            steam.toLowerCase()
+                        String(steam).toLowerCase()
                 );
 
 
@@ -604,6 +771,7 @@ app.post(
                         "Энэ Steam account аль хэдийн хүсэлт илгээсэн байна."
 
                 });
+
             }
 
 
@@ -611,7 +779,7 @@ app.post(
                 members.find(
                     member =>
                         member.steam.toLowerCase() ===
-                        steam.toLowerCase()
+                        String(steam).toLowerCase()
                 );
 
 
@@ -623,6 +791,7 @@ app.post(
                         "Энэ Steam account аль хэдийн MEMBER байна."
 
                 });
+
             }
 
 
@@ -687,7 +856,7 @@ app.post(
             );
 
 
-            res.json({
+            return res.json({
 
                 success:
                     true,
@@ -697,16 +866,21 @@ app.post(
 
             });
 
+
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "APPLY ERROR:",
+                error
+            );
 
-            res.status(500).json({
+            return res.status(500).json({
 
                 message:
                     "Server error."
 
             });
+
         }
 
     }
@@ -720,10 +894,8 @@ app.post(
 const DISCORD_CLIENT_ID =
     process.env.DISCORD_CLIENT_ID || "";
 
-
 const DISCORD_CLIENT_SECRET =
     process.env.DISCORD_CLIENT_SECRET || "";
-
 
 const DISCORD_REDIRECT_URI =
     process.env.DISCORD_REDIRECT_URI || "";
@@ -734,9 +906,7 @@ const allowedDiscordIDs =
         process.env.MANAGE_DISCORD_IDS || ""
     )
     .split(",")
-    .map(
-        id => id.trim()
-    )
+    .map(id => id.trim())
     .filter(Boolean);
 
 
@@ -763,7 +933,6 @@ function parseCookies(req) {
             const index =
                 part.indexOf("=");
 
-
             if (index === -1) {
                 return;
             }
@@ -782,7 +951,9 @@ function parseCookies(req) {
 
 
             cookies[key] =
-                decodeURIComponent(value);
+                decodeURIComponent(
+                    value
+                );
 
         });
 
@@ -816,6 +987,7 @@ app.get(
                 </p>
 
             `);
+
         }
 
 
@@ -851,7 +1023,7 @@ app.get(
             });
 
 
-        res.redirect(
+        return res.redirect(
             "https://discord.com/oauth2/authorize?" +
             params.toString()
         );
@@ -885,6 +1057,7 @@ app.get(
                 return res.status(400).send(
                     "Invalid OAuth state."
                 );
+
             }
 
 
@@ -944,6 +1117,7 @@ app.get(
                 return res.status(401).send(
                     "Discord OAuth login failed."
                 );
+
             }
 
 
@@ -972,6 +1146,7 @@ app.get(
                 return res.status(401).send(
                     "Discord user information failed."
                 );
+
             }
 
 
@@ -1045,6 +1220,7 @@ app.get(
                     </html>
 
                 `);
+
             }
 
 
@@ -1084,10 +1260,10 @@ app.get(
             );
 
 
-            /* FIXED */
-            res.redirect(
+            return res.redirect(
                 "/manage.html"
             );
+
 
         } catch (error) {
 
@@ -1096,10 +1272,10 @@ app.get(
                 error
             );
 
-
-            res.status(500).send(
+            return res.status(500).send(
                 "Discord OAuth error."
             );
+
         }
 
     }
@@ -1126,7 +1302,9 @@ function getManageUser(req) {
 
 
     const session =
-        manageSessions.get(token);
+        manageSessions.get(
+            token
+        );
 
 
     if (!session) {
@@ -1145,6 +1323,7 @@ function getManageUser(req) {
         );
 
         return null;
+
     }
 
 
@@ -1179,10 +1358,11 @@ app.get(
                     false
 
             });
+
         }
 
 
-        res.json({
+        return res.json({
 
             authorized:
                 true,
@@ -1200,7 +1380,7 @@ app.get(
 
 
 /* =========================
-   GET APPLICATIONS
+   APPLICATIONS
 ========================= */
 
 app.get(
@@ -1219,10 +1399,11 @@ app.get(
                     "Access denied."
 
             });
+
         }
 
 
-        res.json(
+        return res.json(
 
             applications.filter(
                 application =>
@@ -1237,7 +1418,7 @@ app.get(
 
 
 /* =========================
-   APPROVE APPLICATION
+   APPROVE
 ========================= */
 
 app.post(
@@ -1256,6 +1437,7 @@ app.post(
                     "Access denied."
 
             });
+
         }
 
 
@@ -1281,6 +1463,7 @@ app.post(
                     "Application олдсонгүй."
 
             });
+
         }
 
 
@@ -1316,6 +1499,7 @@ app.post(
                     "Энэ Steam account аль хэдийн MEMBER байна."
 
             });
+
         }
 
 
@@ -1333,9 +1517,6 @@ app.post(
             steam:
                 application.steam,
 
-            tier:
-                null,
-
             name:
                 profile?.name ||
                 application.steamName ||
@@ -1344,7 +1525,10 @@ app.post(
             avatar:
                 profile?.avatar ||
                 application.steamAvatar ||
-                ""
+                "",
+
+            tier:
+                null
 
         };
 
@@ -1372,7 +1556,7 @@ app.post(
         );
 
 
-        res.json({
+        return res.json({
 
             success:
                 true,
@@ -1390,7 +1574,7 @@ app.post(
 
 
 /* =========================
-   REJECT APPLICATION
+   REJECT
 ========================= */
 
 app.post(
@@ -1409,6 +1593,7 @@ app.post(
                     "Access denied."
 
             });
+
         }
 
 
@@ -1434,6 +1619,7 @@ app.post(
                     "Application олдсонгүй."
 
             });
+
         }
 
 
@@ -1449,7 +1635,7 @@ app.post(
         );
 
 
-        res.json({
+        return res.json({
 
             success:
                 true,
@@ -1464,13 +1650,51 @@ app.post(
 
 
 /* =========================
-   TIER SYSTEM
+   TIER HELPERS
 ========================= */
 
+function normalizeTier(tier) {
 
-/*
-   GET MEMBER TIERS
-*/
+    if (
+        tier === null ||
+        tier === undefined
+    ) {
+        return null;
+    }
+
+
+    const value =
+        String(tier)
+            .trim()
+            .toUpperCase();
+
+
+    if (
+        /^TIER [1-5]$/.test(value)
+    ) {
+
+        return value;
+
+    }
+
+
+    if (
+        /^[1-5]$/.test(value)
+    ) {
+
+        return `TIER ${value}`;
+
+    }
+
+
+    return null;
+}
+
+
+/* =========================
+   GET TIERS
+   MANAGE ONLY
+========================= */
 
 app.get(
     "/api/manage/tiers",
@@ -1488,41 +1712,39 @@ app.get(
                     "Access denied."
 
             });
+
         }
 
 
         const result =
             members
-                .filter(
-                    member =>
-                        String(member.role).toUpperCase() ===
-                        "MEMBER"
+                .filter(member =>
+                    String(member.role || "")
+                        .trim()
+                        .toUpperCase() ===
+                    "MEMBER"
                 )
-                .map(
-                    member => ({
+                .map(member => ({
 
-                        steam:
-                            member.steam,
+                    steam:
+                        member.steam,
 
-                        name:
-                            member.name ||
-                            member.steam
-                                .split("/")
-                                .filter(Boolean)
-                                .pop() ||
-                            "INJUSTICE MEMBER",
+                    name:
+                        member.name ||
+                        "INJUSTICE MEMBER",
 
-                        avatar:
-                            member.avatar || "",
+                    avatar:
+                        member.avatar || "",
 
-                        tier:
-                            member.tier || null
+                    tier:
+                        normalizeTier(
+                            member.tier
+                        )
 
-                    })
-                );
+                }));
 
 
-        res.json(
+        return res.json(
             result
         );
 
@@ -1530,9 +1752,9 @@ app.get(
 );
 
 
-/*
-   SAVE MEMBER TIER
-*/
+/* =========================
+   SAVE TIER
+========================= */
 
 app.post(
     "/api/manage/tiers",
@@ -1550,6 +1772,7 @@ app.post(
                     "Access denied."
 
             });
+
         }
 
 
@@ -1567,79 +1790,46 @@ app.post(
                     "Member болон Tier сонгоно уу."
 
             });
-        }
-
-
-        /*
-           Accept both:
-
-           1
-           2
-           3
-           4
-           5
-
-           AND
-
-           TIER 1
-           TIER 2
-           TIER 3
-           TIER 4
-           TIER 5
-        */
-
-        let normalizedTier =
-            String(tier)
-                .trim()
-                .toUpperCase();
-
-
-        if (
-            /^[1-5]$/.test(
-                normalizedTier
-            )
-        ) {
-
-            normalizedTier =
-                `TIER ${normalizedTier}`;
 
         }
 
 
-        const allowedTiers = [
-
-            "TIER 1",
-            "TIER 2",
-            "TIER 3",
-            "TIER 4",
-            "TIER 5"
-
-        ];
+        const normalizedTier =
+            normalizeTier(
+                tier
+            );
 
 
-        if (
-            !allowedTiers.includes(
-                normalizedTier
-            )
-        ) {
+        if (!normalizedTier) {
 
             return res.status(400).json({
 
                 message:
-                    "Tier буруу байна. TIER 1-5 сонгоно уу."
+                    "TIER 1-5 хооронд сонгоно уу."
 
             });
+
         }
 
 
         const member =
-            members.find(
-                item =>
-                    String(item.steam).toLowerCase() ===
-                    String(steam).toLowerCase() &&
-                    String(item.role).toUpperCase() ===
+            members.find(item => {
+
+                return (
+                    String(item.steam || "")
+                        .trim()
+                        .toLowerCase() ===
+                    String(steam)
+                        .trim()
+                        .toLowerCase()
+                    &&
+                    String(item.role || "")
+                        .trim()
+                        .toUpperCase() ===
                     "MEMBER"
-            );
+                );
+
+            });
 
 
         if (!member) {
@@ -1650,12 +1840,17 @@ app.post(
                     "MEMBER олдсонгүй."
 
             });
+
         }
 
+
+        /* TIER хадгална */
 
         member.tier =
             normalizedTier;
 
+
+        /* members.json-д бичнэ */
 
         writeJSON(
             MEMBERS_FILE,
@@ -1663,7 +1858,12 @@ app.post(
         );
 
 
-        res.json({
+        console.log(
+            `[TIER] ${member.name || member.steam} -> ${normalizedTier}`
+        );
+
+
+        return res.json({
 
             success:
                 true,
@@ -1671,7 +1871,21 @@ app.post(
             message:
                 `${member.name || "Member"} → ${normalizedTier}`,
 
-            member
+            member: {
+
+                steam:
+                    member.steam,
+
+                name:
+                    member.name,
+
+                avatar:
+                    member.avatar,
+
+                tier:
+                    member.tier
+
+            }
 
         });
 
@@ -1705,15 +1919,12 @@ app.post(
 
 
         res.setHeader(
-
             "Set-Cookie",
-
             "injustice_manage=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0"
-
         );
 
 
-        res.json({
+        return res.json({
 
             success:
                 true
@@ -1732,13 +1943,24 @@ app.get(
     "/api/health",
     (req, res) => {
 
-        res.json({
+        return res.json({
 
             status:
                 "ok",
 
             clan:
-                "INJUSTICE"
+                "INJUSTICE",
+
+            members:
+                members.length,
+
+            tiers:
+                members.filter(
+                    member =>
+                        normalizeTier(
+                            member.tier
+                        )
+                ).length
 
         });
 
@@ -1766,7 +1988,7 @@ app.use(
 
 
 /* =========================
-   START SERVER
+   START
 ========================= */
 
 app.listen(
@@ -1777,6 +1999,9 @@ app.listen(
             `INJUSTICE server running on port ${PORT}`
         );
 
+        console.log(
+            `Members: ${members.length}`
+        );
 
         console.log(
             `Manage Discord IDs: ${allowedDiscordIDs.length}`
