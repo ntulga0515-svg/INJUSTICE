@@ -159,6 +159,7 @@ function readJSON(file, fallback) {
     try {
 
         if (!fs.existsSync(file)) {
+
             fs.writeFileSync(
                 file,
                 JSON.stringify(fallback, null, 2)
@@ -193,8 +194,15 @@ function writeJSON(file, data) {
 }
 
 
-let members = readJSON(MEMBERS_FILE, DEFAULT_MEMBERS);
-let applications = readJSON(APPLICATIONS_FILE, []);
+let members = readJSON(
+    MEMBERS_FILE,
+    DEFAULT_MEMBERS
+);
+
+let applications = readJSON(
+    APPLICATIONS_FILE,
+    []
+);
 
 
 /* =========================
@@ -230,6 +238,7 @@ async function steamRequest(url) {
     const response = await fetch(url);
 
     if (!response.ok) {
+
         throw new Error(
             `Steam API HTTP ${response.status}`
         );
@@ -247,58 +256,87 @@ async function getSteamProfile(steamURL) {
 
     try {
 
-        let steamID = extractSteamID(steamURL);
+        let steamID =
+            extractSteamID(steamURL);
+
 
         if (!steamID) {
 
-            const vanity = extractVanity(steamURL);
+            const vanity =
+                extractVanity(steamURL);
+
 
             if (!vanity) {
                 return null;
             }
+
 
             const resolveURL =
                 "https://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/" +
                 `?key=${encodeURIComponent(STEAM_API_KEY)}` +
                 `&vanityurl=${encodeURIComponent(vanity)}`;
 
-            const resolved = await steamRequest(resolveURL);
+
+            const resolved =
+                await steamRequest(resolveURL);
+
 
             if (
                 !resolved.response ||
                 resolved.response.success !== 1
             ) {
+
                 return null;
             }
 
-            steamID = resolved.response.steamid;
+
+            steamID =
+                resolved.response.steamid;
         }
+
 
         const summaryURL =
             "https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/" +
             `?key=${encodeURIComponent(STEAM_API_KEY)}` +
             `&steamids=${encodeURIComponent(steamID)}`;
 
-        const result = await steamRequest(summaryURL);
+
+        const result =
+            await steamRequest(summaryURL);
+
 
         const player =
             result.response &&
             result.response.players &&
             result.response.players[0];
 
+
         if (!player) {
             return null;
         }
 
+
         return {
-            steamid: player.steamid,
-            name: player.personaname,
-            avatar: player.avatarfull || player.avatarmedium || player.avatar
+
+            steamid:
+                player.steamid,
+
+            name:
+                player.personaname,
+
+            avatar:
+                player.avatarfull ||
+                player.avatarmedium ||
+                player.avatar
+
         };
 
     } catch (error) {
 
-        console.error("STEAM ERROR:", error.message);
+        console.error(
+            "STEAM ERROR:",
+            error.message
+        );
 
         return null;
     }
@@ -309,48 +347,62 @@ async function getSteamProfile(steamURL) {
    MEMBERS API
 ========================= */
 
-app.get("/api/members", async (req, res) => {
+app.get(
+    "/api/members",
+    async (req, res) => {
 
-    const result = [];
+        const result = [];
 
-    for (const member of members) {
 
-        let profile = null;
+        for (const member of members) {
 
-        if (STEAM_API_KEY) {
-            profile = await getSteamProfile(member.steam);
+            let profile = null;
+
+
+            if (STEAM_API_KEY) {
+
+                profile =
+                    await getSteamProfile(
+                        member.steam
+                    );
+            }
+
+
+            result.push({
+
+                role:
+                    member.role,
+
+                steam:
+                    member.steam,
+
+                name:
+                    profile?.name ||
+                    member.name ||
+                    member.steam
+                        .split("/")
+                        .filter(Boolean)
+                        .pop() ||
+                    "INJUSTICE MEMBER",
+
+                avatar:
+                    profile?.avatar ||
+                    member.avatar ||
+                    "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg",
+
+                tier:
+                    member.tier || null
+
+            });
+
         }
 
-        result.push({
 
-            role: member.role,
-
-            steam: member.steam,
-
-            name:
-                profile?.name ||
-                member.name ||
-                member.steam
-                    .split("/")
-                    .filter(Boolean)
-                    .pop() ||
-                "INJUSTICE MEMBER",
-
-            avatar:
-                profile?.avatar ||
-                member.avatar ||
-                "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg",
-
-            tier:
-                member.tier || null
-
-        });
+        res.json(result);
 
     }
+);
 
-    res.json(result);
-
-});
 
 /* =========================
    DISCORD WEBHOOK
@@ -360,75 +412,118 @@ const DISCORD_WEBHOOK_URL =
     process.env.DISCORD_WEBHOOK_URL || "";
 
 
-async function sendApplicationWebhook(application) {
+async function sendApplicationWebhook(
+    application
+) {
 
     if (!DISCORD_WEBHOOK_URL) {
         return;
     }
 
+
     try {
 
-        await fetch(DISCORD_WEBHOOK_URL, {
+        await fetch(
+            DISCORD_WEBHOOK_URL,
+            {
 
-            method: "POST",
+                method: "POST",
 
-            headers: {
-                "Content-Type": "application/json"
-            },
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
 
-            body: JSON.stringify({
+                body: JSON.stringify({
 
-                username: "INJUSTICE APPLICATION",
+                    username:
+                        "INJUSTICE APPLICATION",
 
-                embeds: [
+                    embeds: [
 
-                    {
-                        title: "🩸 NEW APPLICATION",
+                        {
 
-                        color: 0xff1744,
+                            title:
+                                "🩸 NEW APPLICATION",
 
-                        fields: [
+                            color:
+                                0xff1744,
 
-                            {
-                                name: "Discord",
-                                value: application.discord || "-",
-                                inline: true
-                            },
+                            fields: [
 
-                            {
-                                name: "Steam",
-                                value: application.steam || "-",
-                                inline: false
-                            },
+                                {
+                                    name:
+                                        "Discord",
 
-                            {
-                                name: "Rank",
-                                value: application.rank || "-",
-                                inline: true
-                            },
+                                    value:
+                                        application.discord ||
+                                        "-",
 
-                            {
-                                name: "FACEIT",
-                                value: application.faceit || "-",
-                                inline: true
-                            },
+                                    inline:
+                                        true
+                                },
 
-                            {
-                                name: "Reason",
-                                value: application.reason || "-",
-                                inline: false
-                            }
+                                {
+                                    name:
+                                        "Steam",
 
-                        ],
+                                    value:
+                                        application.steam ||
+                                        "-",
 
-                        timestamp: new Date().toISOString()
-                    }
+                                    inline:
+                                        false
+                                },
 
-                ]
+                                {
+                                    name:
+                                        "Rank",
 
-            })
+                                    value:
+                                        application.rank ||
+                                        "-",
 
-        });
+                                    inline:
+                                        true
+                                },
+
+                                {
+                                    name:
+                                        "FACEIT",
+
+                                    value:
+                                        application.faceit ||
+                                        "-",
+
+                                    inline:
+                                        true
+                                },
+
+                                {
+                                    name:
+                                        "Reason",
+
+                                    value:
+                                        application.reason ||
+                                        "-",
+
+                                    inline:
+                                        false
+                                }
+
+                            ],
+
+                            timestamp:
+                                new Date().toISOString()
+
+                        }
+
+                    ]
+
+                })
+
+            }
+        );
 
     } catch (error) {
 
@@ -444,149 +539,178 @@ async function sendApplicationWebhook(application) {
    APPLY
 ========================= */
 
-app.post("/api/apply", async (req, res) => {
+app.post(
+    "/api/apply",
+    async (req, res) => {
 
-    try {
+        try {
 
-        const {
-            discord,
-            steam,
-            rank,
-            faceit,
-            reason
-        } = req.body || {};
-
-        if (
-            !discord ||
-            !steam ||
-            !rank ||
-            !faceit ||
-            !reason
-        ) {
-
-            return res.status(400).json({
-                message: "Бүх талбарыг бөглөнө үү."
-            });
-        }
+            const {
+                discord,
+                steam,
+                rank,
+                faceit,
+                reason
+            } = req.body || {};
 
 
-        if (
-            !steam.includes("steamcommunity.com/")
-        ) {
+            if (
+                !discord ||
+                !steam ||
+                !rank ||
+                !faceit ||
+                !reason
+            ) {
 
-            return res.status(400).json({
-                message: "Steam link буруу байна."
-            });
-        }
+                return res.status(400).json({
+
+                    message:
+                        "Бүх талбарыг бөглөнө үү."
+
+                });
+            }
 
 
-        const duplicate =
-            applications.find(
-                app =>
-                    app.status === "pending" &&
-                    app.steam.toLowerCase() ===
-                    steam.toLowerCase()
+            if (
+                !steam.includes(
+                    "steamcommunity.com/"
+                )
+            ) {
+
+                return res.status(400).json({
+
+                    message:
+                        "Steam link буруу байна."
+
+                });
+            }
+
+
+            const duplicate =
+                applications.find(
+                    application =>
+                        application.status ===
+                            "pending" &&
+                        application.steam.toLowerCase() ===
+                            steam.toLowerCase()
+                );
+
+
+            if (duplicate) {
+
+                return res.status(409).json({
+
+                    message:
+                        "Энэ Steam account аль хэдийн хүсэлт илгээсэн байна."
+
+                });
+            }
+
+
+            const existingMember =
+                members.find(
+                    member =>
+                        member.steam.toLowerCase() ===
+                        steam.toLowerCase()
+                );
+
+
+            if (existingMember) {
+
+                return res.status(409).json({
+
+                    message:
+                        "Энэ Steam account аль хэдийн MEMBER байна."
+
+                });
+            }
+
+
+            const profile =
+                await getSteamProfile(
+                    steam
+                );
+
+
+            const application = {
+
+                id:
+                    Date.now().toString() +
+                    "-" +
+                    crypto
+                        .randomBytes(4)
+                        .toString("hex"),
+
+                discord:
+                    String(discord).trim(),
+
+                steam:
+                    String(steam).trim(),
+
+                rank:
+                    String(rank).trim(),
+
+                faceit:
+                    String(faceit).trim(),
+
+                reason:
+                    String(reason).trim(),
+
+                steamName:
+                    profile?.name || "",
+
+                steamAvatar:
+                    profile?.avatar || "",
+
+                status:
+                    "pending",
+
+                createdAt:
+                    new Date().toISOString()
+
+            };
+
+
+            applications.push(
+                application
             );
 
 
-        if (duplicate) {
-
-            return res.status(409).json({
-                message:
-                    "Энэ Steam account аль хэдийн хүсэлт илгээсэн байна."
-            });
-        }
-
-
-        const existingMember =
-            members.find(
-                member =>
-                    member.steam.toLowerCase() ===
-                    steam.toLowerCase()
+            writeJSON(
+                APPLICATIONS_FILE,
+                applications
             );
 
 
-        if (existingMember) {
+            await sendApplicationWebhook(
+                application
+            );
 
-            return res.status(409).json({
+
+            res.json({
+
+                success:
+                    true,
+
                 message:
-                    "Энэ Steam account аль хэдийн MEMBER байна."
+                    "Хүсэлт илгээгдлээ. Админ зөвшөөрсний дараа MEMBER болно."
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            res.status(500).json({
+
+                message:
+                    "Server error."
+
             });
         }
 
-
-        const profile =
-            await getSteamProfile(steam);
-
-
-        const application = {
-
-            id:
-                Date.now().toString() +
-                "-" +
-                crypto.randomBytes(4).toString("hex"),
-
-            discord:
-                String(discord).trim(),
-
-            steam:
-                String(steam).trim(),
-
-            rank:
-                String(rank).trim(),
-
-            faceit:
-                String(faceit).trim(),
-
-            reason:
-                String(reason).trim(),
-
-            steamName:
-                profile?.name || "",
-
-            steamAvatar:
-                profile?.avatar || "",
-
-            status:
-                "pending",
-
-            createdAt:
-                new Date().toISOString()
-
-        };
-
-
-        applications.push(application);
-
-        writeJSON(
-            APPLICATIONS_FILE,
-            applications
-        );
-
-
-        await sendApplicationWebhook(
-            application
-        );
-
-
-        res.json({
-
-            success: true,
-
-            message:
-                "Хүсэлт илгээгдлээ. Админ зөвшөөрсний дараа MEMBER болно."
-
-        });
-
-    } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            message: "Server error."
-        });
     }
-});
+);
 
 
 /* =========================
@@ -596,8 +720,10 @@ app.post("/api/apply", async (req, res) => {
 const DISCORD_CLIENT_ID =
     process.env.DISCORD_CLIENT_ID || "";
 
+
 const DISCORD_CLIENT_SECRET =
     process.env.DISCORD_CLIENT_SECRET || "";
+
 
 const DISCORD_REDIRECT_URI =
     process.env.DISCORD_REDIRECT_URI || "";
@@ -608,7 +734,9 @@ const allowedDiscordIDs =
         process.env.MANAGE_DISCORD_IDS || ""
     )
     .split(",")
-    .map(id => id.trim())
+    .map(
+        id => id.trim()
+    )
     .filter(Boolean);
 
 
@@ -627,300 +755,355 @@ function parseCookies(req) {
     const header =
         req.headers.cookie || "";
 
-    header.split(";").forEach(part => {
 
-        const index = part.indexOf("=");
+    header
+        .split(";")
+        .forEach(part => {
 
-        if (index === -1) return;
+            const index =
+                part.indexOf("=");
 
-        const key =
-            part.slice(0, index).trim();
 
-        const value =
-            part.slice(index + 1).trim();
+            if (index === -1) {
+                return;
+            }
 
-        cookies[key] =
-            decodeURIComponent(value);
 
-    });
+            const key =
+                part
+                    .slice(0, index)
+                    .trim();
+
+
+            const value =
+                part
+                    .slice(index + 1)
+                    .trim();
+
+
+            cookies[key] =
+                decodeURIComponent(value);
+
+        });
+
 
     return cookies;
 }
 
 
-app.get("/auth/discord", (req, res) => {
+/* =========================
+   DISCORD LOGIN
+========================= */
 
-    if (
-        !DISCORD_CLIENT_ID ||
-        !DISCORD_CLIENT_SECRET ||
-        !DISCORD_REDIRECT_URI
-    ) {
-
-        return res.status(500).send(`
-            <h1>Discord OAuth тохируулаагүй байна.</h1>
-            <p>Render Environment Variables-аа шалгана уу.</p>
-        `);
-    }
-
-
-    const state =
-        crypto.randomBytes(24).toString("hex");
-
-
-    oauthStates.set(
-        state,
-        Date.now()
-    );
-
-
-    const params =
-        new URLSearchParams({
-
-            client_id:
-                DISCORD_CLIENT_ID,
-
-            redirect_uri:
-                DISCORD_REDIRECT_URI,
-
-            response_type:
-                "code",
-
-            scope:
-                "identify",
-
-            state
-
-        });
-
-
-    res.redirect(
-        "https://discord.com/oauth2/authorize?" +
-        params.toString()
-    );
-});
-
-
-app.get("/auth/discord/callback", async (req, res) => {
-
-    try {
-
-        const {
-            code,
-            state
-        } = req.query;
-
+app.get(
+    "/auth/discord",
+    (req, res) => {
 
         if (
-            !code ||
-            !state ||
-            !oauthStates.has(state)
+            !DISCORD_CLIENT_ID ||
+            !DISCORD_CLIENT_SECRET ||
+            !DISCORD_REDIRECT_URI
         ) {
 
-            return res.status(400).send(
-                "Invalid OAuth state."
-            );
-        }
+            return res.status(500).send(`
 
+                <h1>
+                    Discord OAuth тохируулаагүй байна.
+                </h1>
 
-        oauthStates.delete(state);
-
-
-        const tokenResponse =
-            await fetch(
-                "https://discord.com/api/oauth2/token",
-                {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/x-www-form-urlencoded"
-                    },
-
-                    body:
-                        new URLSearchParams({
-
-                            client_id:
-                                DISCORD_CLIENT_ID,
-
-                            client_secret:
-                                DISCORD_CLIENT_SECRET,
-
-                            grant_type:
-                                "authorization_code",
-
-                            code:
-                                String(code),
-
-                            redirect_uri:
-                                DISCORD_REDIRECT_URI
-
-                        })
-
-                }
-            );
-
-
-        const tokenData =
-            await tokenResponse.json();
-
-
-        if (
-            !tokenResponse.ok ||
-            !tokenData.access_token
-        ) {
-
-            return res.status(401).send(
-                "Discord OAuth login failed."
-            );
-        }
-
-
-        const userResponse =
-            await fetch(
-                "https://discord.com/api/users/@me",
-                {
-
-                    headers: {
-                        Authorization:
-                            `Bearer ${tokenData.access_token}`
-                    }
-
-                }
-            );
-
-
-        const user =
-            await userResponse.json();
-
-
-        if (!userResponse.ok) {
-
-            return res.status(401).send(
-                "Discord user information failed."
-            );
-        }
-
-
-        const authorized =
-            allowedDiscordIDs.includes(
-                String(user.id)
-            );
-
-
-        if (!authorized) {
-
-            return res.status(403).send(`
-
-                <!DOCTYPE html>
-
-                <html>
-
-                <head>
-
-                <title>Access Denied</title>
-
-                <style>
-
-                body{
-                    background:#050507;
-                    color:white;
-                    font-family:Arial;
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    min-height:100vh;
-                    text-align:center;
-                }
-
-                h1{
-                    color:#ff1744;
-                }
-
-                a{
-                    color:#8b35ff;
-                }
-
-                </style>
-
-                </head>
-
-                <body>
-
-                <div>
-
-                    <h1>ACCESS DENIED</h1>
-
-                    <p>
-                    Таны Discord account Manage эрхгүй байна.
-                    </p>
-
-                    <br>
-
-                    <a href="/">
-                    Буцах
-                    </a>
-
-                </div>
-
-                </body>
-
-                </html>
+                <p>
+                    Render Environment Variables-аа шалгана уу.
+                </p>
 
             `);
         }
 
 
-        const sessionToken =
-            crypto.randomBytes(32).toString("hex");
+        const state =
+            crypto
+                .randomBytes(24)
+                .toString("hex");
 
 
-        manageSessions.set(
-            sessionToken,
-            {
-                id:
-                    String(user.id),
-
-                username:
-                    user.global_name ||
-                    user.username,
-
-                createdAt:
-                    Date.now()
-            }
+        oauthStates.set(
+            state,
+            Date.now()
         );
 
 
-        res.setHeader(
-            "Set-Cookie",
+        const params =
+            new URLSearchParams({
 
-            [
-                `injustice_manage=${encodeURIComponent(sessionToken)}`,
-                "HttpOnly",
-                "Path=/",
-                "SameSite=Lax",
-                "Max-Age=604800"
-            ].join("; ")
+                client_id:
+                    DISCORD_CLIENT_ID,
+
+                redirect_uri:
+                    DISCORD_REDIRECT_URI,
+
+                response_type:
+                    "code",
+
+                scope:
+                    "identify",
+
+                state
+
+            });
+
+
+        res.redirect(
+            "https://discord.com/oauth2/authorize?" +
+            params.toString()
         );
 
-
-       res.redirect("/manage.html");
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "DISCORD OAUTH ERROR:",
-            error
-        );
-
-        res.status(500).send(
-            "Discord OAuth error."
-        );
     }
+);
 
-});
+
+/* =========================
+   DISCORD CALLBACK
+========================= */
+
+app.get(
+    "/auth/discord/callback",
+    async (req, res) => {
+
+        try {
+
+            const {
+                code,
+                state
+            } = req.query;
+
+
+            if (
+                !code ||
+                !state ||
+                !oauthStates.has(state)
+            ) {
+
+                return res.status(400).send(
+                    "Invalid OAuth state."
+                );
+            }
+
+
+            oauthStates.delete(
+                state
+            );
+
+
+            const tokenResponse =
+                await fetch(
+                    "https://discord.com/api/oauth2/token",
+                    {
+
+                        method:
+                            "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/x-www-form-urlencoded"
+
+                        },
+
+                        body:
+                            new URLSearchParams({
+
+                                client_id:
+                                    DISCORD_CLIENT_ID,
+
+                                client_secret:
+                                    DISCORD_CLIENT_SECRET,
+
+                                grant_type:
+                                    "authorization_code",
+
+                                code:
+                                    String(code),
+
+                                redirect_uri:
+                                    DISCORD_REDIRECT_URI
+
+                            })
+
+                    }
+                );
+
+
+            const tokenData =
+                await tokenResponse.json();
+
+
+            if (
+                !tokenResponse.ok ||
+                !tokenData.access_token
+            ) {
+
+                return res.status(401).send(
+                    "Discord OAuth login failed."
+                );
+            }
+
+
+            const userResponse =
+                await fetch(
+                    "https://discord.com/api/users/@me",
+                    {
+
+                        headers: {
+
+                            Authorization:
+                                `Bearer ${tokenData.access_token}`
+
+                        }
+
+                    }
+                );
+
+
+            const user =
+                await userResponse.json();
+
+
+            if (!userResponse.ok) {
+
+                return res.status(401).send(
+                    "Discord user information failed."
+                );
+            }
+
+
+            const authorized =
+                allowedDiscordIDs.includes(
+                    String(user.id)
+                );
+
+
+            if (!authorized) {
+
+                return res.status(403).send(`
+
+                    <!DOCTYPE html>
+
+                    <html>
+
+                    <head>
+
+                        <title>
+                            Access Denied
+                        </title>
+
+                        <style>
+
+                            body{
+                                background:#050507;
+                                color:white;
+                                font-family:Arial;
+                                display:flex;
+                                justify-content:center;
+                                align-items:center;
+                                min-height:100vh;
+                                text-align:center;
+                            }
+
+                            h1{
+                                color:#ff1744;
+                            }
+
+                            a{
+                                color:#8b35ff;
+                            }
+
+                        </style>
+
+                    </head>
+
+                    <body>
+
+                        <div>
+
+                            <h1>
+                                ACCESS DENIED
+                            </h1>
+
+                            <p>
+                                Таны Discord account Manage эрхгүй байна.
+                            </p>
+
+                            <br>
+
+                            <a href="/">
+                                Буцах
+                            </a>
+
+                        </div>
+
+                    </body>
+
+                    </html>
+
+                `);
+            }
+
+
+            const sessionToken =
+                crypto
+                    .randomBytes(32)
+                    .toString("hex");
+
+
+            manageSessions.set(
+                sessionToken,
+                {
+
+                    id:
+                        String(user.id),
+
+                    username:
+                        user.global_name ||
+                        user.username,
+
+                    createdAt:
+                        Date.now()
+
+                }
+            );
+
+
+            res.setHeader(
+                "Set-Cookie",
+                [
+                    `injustice_manage=${encodeURIComponent(sessionToken)}`,
+                    "HttpOnly",
+                    "Path=/",
+                    "SameSite=Lax",
+                    "Max-Age=604800"
+                ].join("; ")
+            );
+
+
+            /* FIXED */
+            res.redirect(
+                "/manage.html"
+            );
+
+        } catch (error) {
+
+            console.error(
+                "DISCORD OAUTH ERROR:",
+                error
+            );
+
+
+            res.status(500).send(
+                "Discord OAuth error."
+            );
+        }
+
+    }
+);
 
 
 /* =========================
@@ -932,19 +1115,24 @@ function getManageUser(req) {
     const cookies =
         parseCookies(req);
 
+
     const token =
         cookies.injustice_manage;
+
 
     if (!token) {
         return null;
     }
 
+
     const session =
         manageSessions.get(token);
+
 
     if (!session) {
         return null;
     }
+
 
     if (
         !allowedDiscordIDs.includes(
@@ -952,45 +1140,63 @@ function getManageUser(req) {
         )
     ) {
 
-        manageSessions.delete(token);
+        manageSessions.delete(
+            token
+        );
 
         return null;
     }
 
+
     return {
+
         token,
+
         ...session
+
     };
+
 }
 
 
-app.get("/api/manage/me", (req, res) => {
+/* =========================
+   MANAGE ME
+========================= */
 
-    const user =
-        getManageUser(req);
+app.get(
+    "/api/manage/me",
+    (req, res) => {
+
+        const user =
+            getManageUser(req);
 
 
-    if (!user) {
+        if (!user) {
 
-        return res.json({
-            authorized: false
+            return res.json({
+
+                authorized:
+                    false
+
+            });
+        }
+
+
+        res.json({
+
+            authorized:
+                true,
+
+            id:
+                user.id,
+
+            username:
+                user.username
+
         });
+
     }
-
-
-    res.json({
-
-        authorized: true,
-
-        id:
-            user.id,
-
-        username:
-            user.username
-
-    });
-
-});
+);
 
 
 /* =========================
@@ -1008,16 +1214,22 @@ app.get(
         if (!user) {
 
             return res.status(403).json({
-                message: "Access denied."
+
+                message:
+                    "Access denied."
+
             });
         }
 
 
         res.json(
+
             applications.filter(
-                app =>
-                    app.status === "pending"
+                application =>
+                    application.status ===
+                    "pending"
             )
+
         );
 
     }
@@ -1039,7 +1251,10 @@ app.post(
         if (!user) {
 
             return res.status(403).json({
-                message: "Access denied."
+
+                message:
+                    "Access denied."
+
             });
         }
 
@@ -1051,17 +1266,20 @@ app.post(
 
         const index =
             applications.findIndex(
-                app =>
-                    app.id === id &&
-                    app.status === "pending"
+                application =>
+                    application.id === id &&
+                    application.status ===
+                    "pending"
             );
 
 
         if (index === -1) {
 
             return res.status(404).json({
+
                 message:
                     "Application олдсонгүй."
+
             });
         }
 
@@ -1085,19 +1303,23 @@ app.post(
                 1
             );
 
+
             writeJSON(
                 APPLICATIONS_FILE,
                 applications
             );
 
+
             return res.status(409).json({
+
                 message:
                     "Энэ Steam account аль хэдийн MEMBER байна."
+
             });
         }
 
 
-        let profile =
+        const profile =
             await getSteamProfile(
                 application.steam
             );
@@ -1110,6 +1332,9 @@ app.post(
 
             steam:
                 application.steam,
+
+            tier:
+                null,
 
             name:
                 profile?.name ||
@@ -1140,6 +1365,7 @@ app.post(
             members
         );
 
+
         writeJSON(
             APPLICATIONS_FILE,
             applications
@@ -1148,7 +1374,8 @@ app.post(
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             message:
                 "Application approved.",
@@ -1177,7 +1404,10 @@ app.post(
         if (!user) {
 
             return res.status(403).json({
-                message: "Access denied."
+
+                message:
+                    "Access denied."
+
             });
         }
 
@@ -1189,17 +1419,20 @@ app.post(
 
         const index =
             applications.findIndex(
-                app =>
-                    app.id === id &&
-                    app.status === "pending"
+                application =>
+                    application.id === id &&
+                    application.status ===
+                    "pending"
             );
 
 
         if (index === -1) {
 
             return res.status(404).json({
+
                 message:
                     "Application олдсонгүй."
+
             });
         }
 
@@ -1218,7 +1451,8 @@ app.post(
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             message:
                 "Application rejected."
@@ -1228,13 +1462,14 @@ app.post(
     }
 );
 
+
 /* =========================
    TIER SYSTEM
 ========================= */
 
 
 /*
-   GET ALL MEMBER TIERS
+   GET MEMBER TIERS
 */
 
 app.get(
@@ -1244,45 +1479,55 @@ app.get(
         const user =
             getManageUser(req);
 
+
         if (!user) {
 
             return res.status(403).json({
-                message: "Access denied."
-            });
 
+                message:
+                    "Access denied."
+
+            });
         }
 
 
-        const result = members
-            .filter(member =>
-                member.role === "MEMBER"
-            )
-            .map(member => ({
+        const result =
+            members
+                .filter(
+                    member =>
+                        String(member.role).toUpperCase() ===
+                        "MEMBER"
+                )
+                .map(
+                    member => ({
 
-                steam: member.steam,
+                        steam:
+                            member.steam,
 
-                name:
-                    member.name ||
-                    member.steam
-                        .split("/")
-                        .filter(Boolean)
-                        .pop() ||
-                    "INJUSTICE MEMBER",
+                        name:
+                            member.name ||
+                            member.steam
+                                .split("/")
+                                .filter(Boolean)
+                                .pop() ||
+                            "INJUSTICE MEMBER",
 
-                avatar:
-                    member.avatar || "",
+                        avatar:
+                            member.avatar || "",
 
-                tier:
-                    member.tier || null
+                        tier:
+                            member.tier || null
 
-            }));
+                    })
+                );
 
 
-        res.json(result);
+        res.json(
+            result
+        );
 
     }
 );
-
 
 
 /*
@@ -1296,12 +1541,15 @@ app.post(
         const user =
             getManageUser(req);
 
+
         if (!user) {
 
             return res.status(403).json({
-                message: "Access denied."
-            });
 
+                message:
+                    "Access denied."
+
+            });
         }
 
 
@@ -1311,55 +1559,102 @@ app.post(
         } = req.body || {};
 
 
+        if (!steam || !tier) {
+
+            return res.status(400).json({
+
+                message:
+                    "Member болон Tier сонгоно уу."
+
+            });
+        }
+
+
+        /*
+           Accept both:
+
+           1
+           2
+           3
+           4
+           5
+
+           AND
+
+           TIER 1
+           TIER 2
+           TIER 3
+           TIER 4
+           TIER 5
+        */
+
+        let normalizedTier =
+            String(tier)
+                .trim()
+                .toUpperCase();
+
+
+        if (
+            /^[1-5]$/.test(
+                normalizedTier
+            )
+        ) {
+
+            normalizedTier =
+                `TIER ${normalizedTier}`;
+
+        }
+
+
         const allowedTiers = [
+
             "TIER 1",
             "TIER 2",
             "TIER 3",
             "TIER 4",
             "TIER 5"
+
         ];
 
 
-        if (!steam || !tier) {
+        if (
+            !allowedTiers.includes(
+                normalizedTier
+            )
+        ) {
 
             return res.status(400).json({
+
                 message:
-                    "Member болон Tier сонгоно уу."
+                    "Tier буруу байна. TIER 1-5 сонгоно уу."
+
             });
-
-        }
-
-
-        if (!allowedTiers.includes(tier)) {
-
-            return res.status(400).json({
-                message:
-                    "Tier буруу байна."
-            });
-
         }
 
 
         const member =
             members.find(
                 item =>
-                    item.steam.toLowerCase() ===
+                    String(item.steam).toLowerCase() ===
                     String(steam).toLowerCase() &&
-                    item.role === "MEMBER"
+                    String(item.role).toUpperCase() ===
+                    "MEMBER"
             );
 
 
         if (!member) {
 
             return res.status(404).json({
+
                 message:
                     "MEMBER олдсонгүй."
-            });
 
+            });
         }
 
 
-        member.tier = tier;
+        member.tier =
+            normalizedTier;
 
 
         writeJSON(
@@ -1370,10 +1665,11 @@ app.post(
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             message:
-                `${member.name || "Member"} → ${tier}`,
+                `${member.name || "Member"} → ${normalizedTier}`,
 
             member
 
@@ -1381,6 +1677,7 @@ app.post(
 
     }
 );
+
 
 /* =========================
    LOGOUT
@@ -1393,24 +1690,76 @@ app.post(
         const cookies =
             parseCookies(req);
 
+
         const token =
             cookies.injustice_manage;
 
 
         if (token) {
-            manageSessions.delete(token);
+
+            manageSessions.delete(
+                token
+            );
+
         }
 
 
         res.setHeader(
+
             "Set-Cookie",
+
             "injustice_manage=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0"
+
         );
 
 
         res.json({
-            success: true
+
+            success:
+                true
+
         });
+
+    }
+);
+
+
+/* =========================
+   HEALTH
+========================= */
+
+app.get(
+    "/api/health",
+    (req, res) => {
+
+        res.json({
+
+            status:
+                "ok",
+
+            clan:
+                "INJUSTICE"
+
+        });
+
+    }
+);
+
+
+/* =========================
+   FALLBACK
+========================= */
+
+app.use(
+    (req, res) => {
+
+        res.sendFile(
+            path.join(
+                __dirname,
+                "public",
+                "index.html"
+            )
+        );
 
     }
 );
@@ -1420,29 +1769,18 @@ app.post(
    START SERVER
 ========================= */
 
-app.get("/api/health", (req, res) => {
+app.listen(
+    PORT,
+    () => {
 
-    res.json({
-        status: "ok",
-        clan: "INJUSTICE"
-    });
-
-});
-
-
-app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
+        console.log(
+            `INJUSTICE server running on port ${PORT}`
+        );
 
 
-app.listen(PORT, () => {
+        console.log(
+            `Manage Discord IDs: ${allowedDiscordIDs.length}`
+        );
 
-    console.log(
-        `INJUSTICE server running on port ${PORT}`
-    );
-
-    console.log(
-        `Manage Discord IDs: ${allowedDiscordIDs.length}`
-    );
-
-});
+    }
+);
