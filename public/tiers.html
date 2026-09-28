@@ -235,6 +235,7 @@ select:focus{
 }
 
 .card{
+    display:block;
     background:linear-gradient(
         145deg,
         rgba(20,17,25,.95),
@@ -245,12 +246,17 @@ select:focus{
     padding:25px;
     transition:.25s;
     text-align:center;
+    text-decoration:none;
+    color:white;
+    cursor:pointer;
 }
 
 .card:hover{
     transform:translateY(-6px);
-    border-color:rgba(255,23,68,.4);
-    box-shadow:0 15px 50px rgba(0,0,0,.45);
+    border-color:rgba(255,23,68,.55);
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.45),
+        0 0 25px rgba(255,23,68,.08);
 }
 
 .avatar{
@@ -260,18 +266,18 @@ select:focus{
     border-radius:50%;
     border:2px solid var(--red);
     margin:0 auto 15px;
+    display:block;
     box-shadow:0 0 20px rgba(255,23,68,.25);
 }
 
 .name{
     color:white;
-    text-decoration:none;
     font-family:'Orbitron';
     font-size:15px;
     word-break:break-word;
 }
 
-.name:hover{
+.card:hover .name{
     color:var(--red);
 }
 
@@ -553,6 +559,32 @@ function escapeHtml(value){
 }
 
 
+/*
+    TIER утгыг ямар хэлбэртэй ирсэн ч
+    1-5 болгож хэвийн болгоно.
+
+    "TIER 1" -> "1"
+    "tier 2" -> "2"
+    "3"      -> "3"
+*/
+function normalizeTier(value){
+
+    if(!value){
+        return "";
+    }
+
+    const match =
+        String(value)
+            .trim()
+            .match(/[1-5]/);
+
+    return match
+        ? match[0]
+        : "";
+
+}
+
+
 async function checkManage(){
 
     try{
@@ -584,6 +616,14 @@ async function checkManage(){
 }
 
 
+/*
+    MEMBER CARD
+
+    - зураг гарна
+    - нэр гарна
+    - TIER гарна
+    - бүх card дээр дарахад Steam profile руу орно
+*/
 function createMemberCard(member){
 
     const avatar =
@@ -592,34 +632,37 @@ function createMemberCard(member){
     const name =
         member.name || "Unknown";
 
+    const steam =
+        member.steam || "#";
+
+    const tier =
+        normalizeTier(member.tier);
+
     return `
 
-        <div class="card">
+        <a
+            class="card"
+            href="${escapeHtml(steam)}"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
 
-            <a
-                href="${escapeHtml(member.steam)}"
-                target="_blank"
-                rel="noopener noreferrer"
+            <img
+                class="avatar"
+                src="${escapeHtml(avatar)}"
+                alt="${escapeHtml(name)}"
+                onerror="this.src='${fallbackAvatar}'"
             >
 
-                <img
-                    class="avatar"
-                    src="${escapeHtml(avatar)}"
-                    alt="${escapeHtml(name)}"
-                    onerror="this.src='${fallbackAvatar}'"
-                >
-
-                <div class="name">
-                    ${escapeHtml(name)}
-                </div>
-
-            </a>
-
-            <div class="role">
-                ${escapeHtml(member.role || "MEMBER")}
+            <div class="name">
+                ${escapeHtml(name)}
             </div>
 
-        </div>
+            <div class="role">
+                ${tier ? `TIER ${tier}` : "MEMBER"}
+            </div>
+
+        </a>
 
     `;
 }
@@ -637,11 +680,23 @@ function renderTiers(members){
     for(let tier=1;tier<=5;tier++){
 
         const tierMembers =
-            members.filter(
-                member =>
-                    String(member.tier) ===
+            members.filter(member => {
+
+                if(
+                    String(member.role || "")
+                        .toUpperCase() !==
+                    "MEMBER"
+                ){
+                    return false;
+                }
+
+                return (
+                    normalizeTier(member.tier) ===
                     String(tier)
-            );
+                );
+
+            });
+
 
         html += `
 
@@ -698,7 +753,8 @@ function populateMembers(members){
     const memberList =
         members.filter(
             member =>
-                String(member.role).toUpperCase() ===
+                String(member.role || "")
+                    .toUpperCase() ===
                 "MEMBER"
         );
 
@@ -709,21 +765,33 @@ function populateMembers(members){
         </option>
 
         ${
-            memberList.map(member => `
+            memberList.map(member => {
 
-                <option value="${escapeHtml(member.steam)}">
+                const tier =
+                    normalizeTier(member.tier);
 
-                    ${escapeHtml(member.name || member.steam)}
+                return `
 
-                    ${
-                        member.tier
-                        ? ` — TIER ${escapeHtml(member.tier)}`
-                        : ""
-                    }
+                    <option
+                        value="${escapeHtml(member.steam)}"
+                    >
 
-                </option>
+                        ${escapeHtml(
+                            member.name ||
+                            member.steam
+                        )}
 
-            `).join("")
+                        ${
+                            tier
+                            ? ` — TIER ${tier}`
+                            : ""
+                        }
+
+                    </option>
+
+                `;
+
+            }).join("")
         }
 
     `;
@@ -879,8 +947,7 @@ async function assignTier(){
 
 async function init(){
 
-    const authorized =
-        await checkManage();
+    await checkManage();
 
     await loadMembers();
 
