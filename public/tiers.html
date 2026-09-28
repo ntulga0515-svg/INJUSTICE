@@ -139,6 +139,8 @@ nav a:hover{
     border-color:var(--purple);
 }
 
+/* MANAGE BOX */
+
 .manage-box{
     max-width:850px;
     margin:0 auto 35px;
@@ -199,6 +201,8 @@ select:focus{
     font-weight:700;
 }
 
+/* TIERS */
+
 .tier-section{
     margin-top:60px;
 }
@@ -233,6 +237,8 @@ select:focus{
     grid-template-columns:repeat(4,1fr);
     gap:18px;
 }
+
+/* MEMBER CARD */
 
 .card{
     display:block;
@@ -308,6 +314,8 @@ select:focus{
     color:#ff1744;
 }
 
+/* MOBILE */
+
 @media(max-width:1050px){
 
     nav ul{
@@ -379,6 +387,8 @@ select:focus{
 
 <body>
 
+<!-- NAV -->
+
 <nav>
 
 <div class="logo-text">
@@ -420,15 +430,19 @@ DISCORD
 </a>
 </li>
 
-<li>
-<a href="/manage.html">
-MANAGE
-</a>
-</li>
+<!-- TIERS -->
 
 <li>
 <a href="/tiers.html" class="active">
 TIERS
+</a>
+</li>
+
+<!-- MANAGE -->
+
+<li>
+<a href="/manage.html">
+MANAGE
 </a>
 </li>
 
@@ -453,12 +467,17 @@ TIERS
 
 
 <a
-href="/manage.html"
+href="/"
 class="back"
 >
-← BACK TO MANAGE
+← BACK TO HOME
 </a>
 
+
+<!--
+    ЭНЭ ХЭСЭГ ЗӨВХӨН MANAGE ЭРХТЭЙ
+    ХҮНД ХАРАГДАНА.
+-->
 
 <div
 class="manage-box"
@@ -527,6 +546,11 @@ id="status"
 </div>
 
 
+<!--
+    ЭНЭ ХЭСЭГ БҮХ ХҮНД ХАРАГДАНА.
+    LOGIN ХЭРЭГГҮЙ.
+-->
+
 <div id="tiersContainer">
 
 <div class="loading">
@@ -547,6 +571,8 @@ const fallbackAvatar =
 let allMembers = [];
 
 
+/* HTML хамгаалалт */
+
 function escapeHtml(value){
 
     return String(value || "")
@@ -560,30 +586,51 @@ function escapeHtml(value){
 
 
 /*
-    TIER утгыг ямар хэлбэртэй ирсэн ч
-    1-5 болгож хэвийн болгоно.
-
+    TIER:
     "TIER 1" -> "1"
     "tier 2" -> "2"
     "3"      -> "3"
 */
+
 function normalizeTier(value){
 
     if(!value){
         return "";
     }
 
-    const match =
+    const text =
         String(value)
             .trim()
-            .match(/[1-5]/);
+            .toUpperCase();
 
-    return match
-        ? match[0]
-        : "";
+    const match =
+        text.match(/TIER\s*([1-5])/);
 
+    if(match){
+        return match[1];
+    }
+
+    if(/^[1-5]$/.test(text)){
+        return text;
+    }
+
+    return "";
 }
 
+
+/*
+    MANAGE эрх шалгана.
+
+    Хэрэв эрхтэй бол:
+    MEMBER сонгох
+    TIER сонгох
+    TIER оноох
+
+    харагдана.
+
+    Эрхгүй хүн:
+    зөвхөн TIER 1-5 харна.
+*/
 
 async function checkManage(){
 
@@ -591,6 +638,10 @@ async function checkManage(){
 
         const response =
             await fetch("/api/manage/me");
+
+        if(!response.ok){
+            return false;
+        }
 
         const data =
             await response.json();
@@ -608,22 +659,23 @@ async function checkManage(){
 
     }catch(error){
 
-        console.error(error);
+        console.error(
+            "Manage check error:",
+            error
+        );
 
         return false;
     }
-
 }
 
 
 /*
     MEMBER CARD
 
-    - зураг гарна
-    - нэр гарна
-    - TIER гарна
-    - бүх card дээр дарахад Steam profile руу орно
+    Card дээр дарвал Steam profile
+    шинэ tab дээр нээгдэнэ.
 */
+
 function createMemberCard(member){
 
     const avatar =
@@ -659,7 +711,7 @@ function createMemberCard(member){
             </div>
 
             <div class="role">
-                ${tier ? `TIER ${tier}` : "MEMBER"}
+                TIER ${tier}
             </div>
 
         </a>
@@ -668,6 +720,16 @@ function createMemberCard(member){
 }
 
 
+/*
+    TIER 1
+    TIER 2
+    TIER 3
+    TIER 4
+    TIER 5
+
+    бүгдийг харуулна.
+*/
+
 function renderTiers(members){
 
     const container =
@@ -675,18 +737,19 @@ function renderTiers(members){
             "tiersContainer"
         );
 
-    let html="";
+    let html = "";
 
-    for(let tier=1;tier<=5;tier++){
+    for(let tier = 1; tier <= 5; tier++){
 
         const tierMembers =
             members.filter(member => {
 
-                if(
+                const role =
                     String(member.role || "")
-                        .toUpperCase() !==
-                    "MEMBER"
-                ){
+                        .trim()
+                        .toUpperCase();
+
+                if(role !== "MEMBER"){
                     return false;
                 }
 
@@ -716,19 +779,27 @@ function renderTiers(members){
 
                 </div>
 
+
                 <div class="grid">
 
                     ${
-                        tierMembers.length
+                        tierMembers.length > 0
+
                         ?
+
                         tierMembers
                             .map(createMemberCard)
                             .join("")
+
                         :
+
                         `
-                            <div class="empty">
-                                TIER ${tier}-т одоогоор MEMBER алга.
-                            </div>
+                        <div class="empty">
+
+                            TIER ${tier}-т
+                            одоогоор MEMBER алга.
+
+                        </div>
                         `
                     }
 
@@ -739,9 +810,13 @@ function renderTiers(members){
         `;
     }
 
-    container.innerHTML=html;
+    container.innerHTML = html;
 }
 
+
+/*
+    MANAGE MEMBER SELECT
+*/
 
 function populateMembers(members){
 
@@ -750,60 +825,81 @@ function populateMembers(members){
             "memberSelect"
         );
 
+    if(!select){
+        return;
+    }
+
     const memberList =
-        members.filter(
-            member =>
+        members.filter(member => {
+
+            return (
                 String(member.role || "")
+                    .trim()
                     .toUpperCase() ===
                 "MEMBER"
-        );
+            );
 
-    select.innerHTML=`
+        });
+
+
+    select.innerHTML = `
 
         <option value="">
             -- MEMBER СОНГОХ --
         </option>
 
         ${
-            memberList.map(member => {
+            memberList
+                .map(member => {
 
-                const tier =
-                    normalizeTier(member.tier);
+                    const tier =
+                        normalizeTier(
+                            member.tier
+                        );
 
-                return `
+                    return `
 
-                    <option
-                        value="${escapeHtml(member.steam)}"
-                    >
+                        <option
+                            value="${escapeHtml(
+                                member.steam
+                            )}"
+                        >
 
-                        ${escapeHtml(
-                            member.name ||
-                            member.steam
-                        )}
+                            ${escapeHtml(
+                                member.name ||
+                                member.steam
+                            )}
 
-                        ${
-                            tier
-                            ? ` — TIER ${tier}`
-                            : ""
-                        }
+                            ${
+                                tier
+                                ? ` — TIER ${tier}`
+                                : ""
+                            }
 
-                    </option>
+                        </option>
 
-                `;
+                    `;
 
-            }).join("")
+                })
+                .join("")
         }
 
     `;
 }
 
 
+/*
+    БҮХ ГИШҮҮДИЙГ API-аас авах
+*/
+
 async function loadMembers(){
 
     try{
 
         const response =
-            await fetch("/api/members");
+            await fetch(
+                "/api/members"
+            );
 
         if(!response.ok){
 
@@ -812,12 +908,35 @@ async function loadMembers(){
             );
         }
 
-        allMembers =
+
+        const data =
             await response.json();
 
-        renderTiers(allMembers);
 
-        populateMembers(allMembers);
+        if(!Array.isArray(data)){
+
+            throw new Error(
+                "Members data буруу байна"
+            );
+        }
+
+
+        allMembers = data;
+
+
+        /* БҮХ ХҮНД ХАРАГДАНА */
+
+        renderTiers(
+            allMembers
+        );
+
+
+        /* MANAGE ХЭСЭГ */
+
+        populateMembers(
+            allMembers
+        );
+
 
     }catch(error){
 
@@ -825,10 +944,12 @@ async function loadMembers(){
 
         document.getElementById(
             "tiersContainer"
-        ).innerHTML=`
+        ).innerHTML = `
 
             <div class="loading error">
+
                 Members ачаалж чадсангүй.
+
             </div>
 
         `;
@@ -836,6 +957,10 @@ async function loadMembers(){
 
 }
 
+
+/*
+    TIER ОНООХ
+*/
 
 async function assignTier(){
 
@@ -857,9 +982,10 @@ async function assignTier(){
 
     if(!steam){
 
-        status.style.color="#ff1744";
+        status.style.color =
+            "#ff1744";
 
-        status.innerText=
+        status.innerText =
             "MEMBER сонгоно уу.";
 
         return;
@@ -868,18 +994,20 @@ async function assignTier(){
 
     if(!tier){
 
-        status.style.color="#ff1744";
+        status.style.color =
+            "#ff1744";
 
-        status.innerText=
+        status.innerText =
             "TIER сонгоно уу.";
 
         return;
     }
 
 
-    status.style.color="#aaa";
+    status.style.color =
+        "#aaa";
 
-    status.innerText=
+    status.innerText =
         "Tier хадгалж байна...";
 
 
@@ -917,27 +1045,34 @@ async function assignTier(){
         }
 
 
-        status.style.color="#7cff8a";
+        status.style.color =
+            "#7cff8a";
 
-        status.innerText=
+        status.innerText =
             `✓ TIER ${tier} амжилттай оноолоо.`;
 
+
+        /*
+            Хадгалсны дараа
+            бүх TIER дахин шинэчлэгдэнэ.
+        */
 
         await loadMembers();
 
 
         document.getElementById(
             "tierSelect"
-        ).value="";
+        ).value = "";
 
 
     }catch(error){
 
         console.error(error);
 
-        status.style.color="#ff1744";
+        status.style.color =
+            "#ff1744";
 
-        status.innerText=
+        status.innerText =
             "✕ " + error.message;
 
     }
@@ -945,7 +1080,17 @@ async function assignTier(){
 }
 
 
+/*
+    START
+*/
+
 async function init(){
+
+    /*
+        Manage эрх байгаа эсэхийг шалгана.
+        Гэхдээ эрхгүй байсан ч
+        TIER-үүдийг loadMembers() хийнэ.
+    */
 
     await checkManage();
 
