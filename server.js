@@ -20,15 +20,8 @@ app.use((req, res, next) => {
         "no-store, no-cache, must-revalidate, proxy-revalidate"
     );
 
-    res.setHeader(
-        "Pragma",
-        "no-cache"
-    );
-
-    res.setHeader(
-        "Expires",
-        "0"
-    );
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
 
     next();
 });
@@ -60,14 +53,9 @@ const APPLICATIONS_FILE =
 
 
 if (!fs.existsSync(DATA_DIR)) {
-
-    fs.mkdirSync(
-        DATA_DIR,
-        {
-            recursive: true
-        }
-    );
-
+    fs.mkdirSync(DATA_DIR, {
+        recursive: true
+    });
 }
 
 
@@ -77,10 +65,34 @@ if (!fs.existsSync(DATA_DIR)) {
 
 const DEFAULT_MEMBERS = [
 
+    /* =====================
+       OWNER
+    ===================== */
+
     {
         role: "OWNER",
         steam: "https://steamcommunity.com/id/arilnam/"
     },
+
+
+    /* =====================
+       MANAGER
+    ===================== */
+
+    {
+        role: "MANAGER",
+        steam: "https://steamcommunity.com/id/nocturnmachine/"
+    },
+
+    {
+        role: "MANAGER",
+        steam: "https://steamcommunity.com/profiles/76561199214217920/"
+    },
+
+
+    /* =====================
+       ADMIN
+    ===================== */
 
     {
         role: "ADMIN",
@@ -97,10 +109,10 @@ const DEFAULT_MEMBERS = [
         steam: "https://steamcommunity.com/profiles/76561199874044654/"
     },
 
-    {
-        role: "MOD",
-        steam: "https://steamcommunity.com/id/nocturnmachine/"
-    },
+
+    /* =====================
+       MOD
+    ===================== */
 
     {
         role: "MOD",
@@ -109,13 +121,13 @@ const DEFAULT_MEMBERS = [
 
     {
         role: "MOD",
-        steam: "https://steamcommunity.com/profiles/76561199214217920/"
-    },
-
-    {
-        role: "MOD",
         steam: "https://steamcommunity.com/id/Nogitsunebnsnu/"
     },
+
+
+    /* =====================
+       MEMBER
+    ===================== */
 
     {
         role: "MEMBER",
@@ -237,10 +249,7 @@ function readJSON(file, fallback) {
             return fallback;
         }
 
-        const parsed =
-            JSON.parse(raw);
-
-        return parsed;
+        return JSON.parse(raw);
 
     } catch (error) {
 
@@ -314,6 +323,147 @@ members =
         };
 
     });
+
+
+/* =========================
+   FORCE CORRECT ROLES
+========================= */
+
+/*
+   Энд Steam link-ээр нь role-ийг
+   автоматаар зөв болгож байна.
+
+   Ингэснээр хуучин members.json дотор
+   MOD гэж хадгалагдсан байсан ч
+   MANAGER болж шинэчлэгдэнэ.
+*/
+
+const MANAGER_STEAMS = [
+    "https://steamcommunity.com/id/nocturnmachine/",
+    "https://steamcommunity.com/profiles/76561199214217920/"
+];
+
+const MOD_STEAMS = [
+    "https://steamcommunity.com/profiles/76561199831735722/",
+    "https://steamcommunity.com/id/Nogitsunebnsnu/"
+];
+
+const OWNER_STEAMS = [
+    "https://steamcommunity.com/id/arilnam/"
+];
+
+const ADMIN_STEAMS = [
+    "https://steamcommunity.com/profiles/76561199877551279/",
+    "https://steamcommunity.com/profiles/76561199013172707/",
+    "https://steamcommunity.com/profiles/76561199874044654/"
+];
+
+
+function normalizeSteam(url) {
+
+    return String(url || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\/+$/, "");
+
+}
+
+
+members =
+    members.map(member => {
+
+        const steam =
+            normalizeSteam(member.steam);
+
+
+        if (
+            OWNER_STEAMS
+                .map(normalizeSteam)
+                .includes(steam)
+        ) {
+
+            member.role = "OWNER";
+
+        } else if (
+            MANAGER_STEAMS
+                .map(normalizeSteam)
+                .includes(steam)
+        ) {
+
+            member.role = "MANAGER";
+
+        } else if (
+            ADMIN_STEAMS
+                .map(normalizeSteam)
+                .includes(steam)
+        ) {
+
+            member.role = "ADMIN";
+
+        } else if (
+            MOD_STEAMS
+                .map(normalizeSteam)
+                .includes(steam)
+        ) {
+
+            member.role = "MOD";
+
+        }
+
+        return member;
+
+    });
+
+
+/*
+   members.json дээр шинэ role-уудыг
+   хадгална.
+*/
+
+writeJSON(
+    MEMBERS_FILE,
+    members
+);
+
+
+/* =========================
+   ROLE ORDER
+========================= */
+
+const ROLE_ORDER = {
+
+    OWNER: 1,
+    MANAGER: 2,
+    ADMIN: 3,
+    MOD: 4,
+    MEMBER: 5
+
+};
+
+
+function sortMembers(list) {
+
+    return [...list].sort(
+        (a, b) => {
+
+            const roleA =
+                ROLE_ORDER[
+                    String(a.role || "")
+                        .toUpperCase()
+                ] || 99;
+
+            const roleB =
+                ROLE_ORDER[
+                    String(b.role || "")
+                        .toUpperCase()
+                ] || 99;
+
+            return roleA - roleB;
+
+        }
+    );
+
+}
 
 
 /* =========================
@@ -487,9 +637,19 @@ app.get(
             const result = [];
 
 
+            /*
+               Энд мөн role order ашиглаж байна.
+            */
+
+            const sortedMembers =
+                sortMembers(
+                    members
+                );
+
+
             for (
                 const member
-                of members
+                of sortedMembers
             ) {
 
                 let profile =
@@ -527,12 +687,6 @@ app.get(
                         profile?.avatar ||
                         member.avatar ||
                         "https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg",
-
-                    /*
-                       IMPORTANT
-                       TIER эндээс шууд members.json-оос
-                       гарч байна.
-                    */
 
                     tier:
                         member.tier || null
@@ -1638,10 +1792,7 @@ app.post(
         return res.json({
 
             success:
-                true,
-
-            message:
-                "Application rejected."
+                true
 
         });
 
@@ -1717,31 +1868,33 @@ app.get(
 
 
         const result =
-            members
-                .filter(member =>
-                    String(member.role || "")
-                        .trim()
-                        .toUpperCase() ===
-                    "MEMBER"
-                )
-                .map(member => ({
+            sortMembers(
+                members
+            )
+            .filter(member =>
+                String(member.role || "")
+                    .trim()
+                    .toUpperCase() ===
+                "MEMBER"
+            )
+            .map(member => ({
 
-                    steam:
-                        member.steam,
+                steam:
+                    member.steam,
 
-                    name:
-                        member.name ||
-                        "INJUSTICE MEMBER",
+                name:
+                    member.name ||
+                    "INJUSTICE MEMBER",
 
-                    avatar:
-                        member.avatar || "",
+                avatar:
+                    member.avatar || "",
 
-                    tier:
-                        normalizeTier(
-                            member.tier
-                        )
+                tier:
+                    normalizeTier(
+                        member.tier
+                    )
 
-                }));
+            }));
 
 
         return res.json(
@@ -1816,13 +1969,11 @@ app.post(
             members.find(item => {
 
                 return (
-                    String(item.steam || "")
-                        .trim()
-                        .toLowerCase() ===
-                    String(steam)
-                        .trim()
-                        .toLowerCase()
+                    normalizeSteam(item.steam) ===
+                    normalizeSteam(steam)
+
                     &&
+
                     String(item.role || "")
                         .trim()
                         .toUpperCase() ===
@@ -1844,13 +1995,9 @@ app.post(
         }
 
 
-        /* TIER хадгална */
-
         member.tier =
             normalizedTier;
 
-
-        /* members.json-д бичнэ */
 
         writeJSON(
             MEMBERS_FILE,
