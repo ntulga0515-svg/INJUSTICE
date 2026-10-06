@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>MANAGE — INJUSTICE</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --red:#ff1744;
+    --purple:#8b35ff;
+    --bg:#050507;
+    --card:#0d0a11;
+    --text:#f5f5f5;
+    --muted:#999;
+    --green:#19b95b;
+}
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 80% 10%,rgba(139,53,255,.18),transparent 30%),
+        radial-gradient(circle at 10% 50%,rgba(255,23,68,.14),transparent 30%),
+        var(--bg);
+    color:var(--text);
+    font-family:'Rajdhani',sans-serif;
+    overflow-x:hidden;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.035;
+    background-image:
+        linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+    background-size:45px 45px;
+}
+
+nav{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:999;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 5%;
+    background:rgba(5,5,7,.85);
+    backdrop-filter:blur(15px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.logo-text{
+    font-family:'Orbitron';
+    font-size:22px;
+    font-weight:900;
+    letter-spacing:4px;
+}
+
+.logo-text span{
+    color:var(--red);
+}
+
+nav ul{
+    display:flex;
+    gap:22px;
+    list-style:none;
+    align-items:center;
+}
+
+nav a{
+    color:#aaa;
+    text-decoration:none;
+    font-weight:700;
+    letter-spacing:1px;
+    transition:.25s;
+}
+
+nav a:hover{
+    color:white;
+    text-shadow:0 0 15px var(--red);
+}
+
+.active{
+    color:#ff5475!important;
+}
+
+.page{
+    max-width:1200px;
+    margin:auto;
+    padding:150px 25px 80px;
+}
+
+.title{
+    text-align:center;
+    margin-bottom:45px;
+}
+
+.title small{
+    color:var(--red);
+    font-family:'Orbitron';
+    letter-spacing:4px;
+}
+
+.title h1{
+    font-family:'Orbitron';
+    font-size:48px;
+    margin-top:10px;
+}
+
+.manage-user{
+    max-width:850px;
+    margin:0 auto 35px;
+    padding:18px 22px;
+    border:1px solid rgba(139,53,255,.3);
+    background:rgba(139,53,255,.08);
+    border-radius:12px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+}
+
+.manage-user span{
+    color:#777;
+    font-size:13px;
+    letter-spacing:2px;
+}
+
+.manage-user strong{
+    font-family:'Orbitron';
+    font-size:16px;
+}
+
+.logout-btn{
+    background:#17131d;
+    color:#aaa;
+    border:1px solid #302936;
+    padding:9px 16px;
+    border-radius:7px;
+    cursor:pointer;
+    font-family:'Rajdhani';
+    font-weight:700;
+}
+
+.logout-btn:hover{
+    color:white;
+    border-color:var(--red);
+}
+
+.applications{
+    max-width:900px;
+    margin:auto;
+    display:grid;
+    gap:18px;
+}
+
+.application-card{
+    background:linear-gradient(145deg,#141119,#09080c);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    padding:25px;
+    transition:.25s;
+}
+
+.application-card:hover{
+    border-color:rgba(255,23,68,.35);
+}
+
+.application-card h2{
+    font-family:'Orbitron';
+    font-size:20px;
+    margin-bottom:18px;
+}
+
+.info{
+    color:#aaa;
+    line-height:1.9;
+}
+
+.info strong{
+    color:white;
+}
+
+.info a{
+    color:#a56cff;
+    word-break:break-all;
+}
+
+.actions{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    padding:11px 20px;
+    border:0;
+    border-radius:7px;
+    color:white;
+    font-family:'Rajdhani';
+    font-size:15px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+}
+
+.approve{
+    background:#168f45;
+}
+
+.reject{
+    background:#b31335;
+}
+
+.empty{
+    text-align:center;
+    color:#777;
+    padding:50px 20px;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:15px;
+    background:#0d0a11;
+}
+
+.loading{
+    text-align:center;
+    color:#777;
+    padding:40px;
+}
+
+.error{
+    color:#ff1744;
+}
+
+@media(max-width:800px){
+
+    nav{
+        padding:16px 4%;
+    }
+
+    nav ul{
+        gap:10px;
+    }
+
+    nav a{
+        font-size:11px;
+    }
+
+    .logo-text{
+        font-size:17px;
+        letter-spacing:2px;
+    }
+
+    .page{
+        padding:130px 15px 60px;
+    }
+
+    .title h1{
+        font-size:36px;
+    }
+
+    .manage-user{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+}
+
+@media(max-width:500px){
+
+    nav{
+        overflow-x:auto;
+    }
+
+    nav ul{
+        flex-shrink:0;
+    }
+
+    .actions{
+        flex-direction:column;
+    }
+
+    .btn{
+        width:100%;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo-text">
+INJUST<span>ICE</span>
+</div>
+
+<ul>
+
+<li>
+<a href="/">
+НҮҮР
+</a>
+</li>
+
+<li>
+<a href="/#members">
+ГИШҮҮД
+</a>
+</li>
+
+<li>
+<a href="/#rules">
+ДҮРЭМ
+</a>
+</li>
+
+<li>
+<a href="/#apply">
+ХҮСЭЛТ
+</a>
+</li>
+
+<li>
+<a
+href="https://discord.gg/kED9f66v2"
+target="_blank"
+>
+DISCORD
+</a>
+</li>
+
+<!-- PUBLIC TIERS -->
+<li>
+<a href="/tiers.html">
+TIERS
+</a>
+</li>
+
+<li>
+<a
+href="/manage.html"
+class="active"
+>
+MANAGE
+</a>
+</li>
+
+</ul>
+
+</nav>
+
+
+<main class="page">
+
+<div class="title">
+
+<small>
+INJUSTICE CLAN
+</small>
+
+<h1>
+MANAGE
+</h1>
+
+</div>
+
+
+<div
+class="manage-user"
+id="manageUser"
+>
+
+<div>
+
+<span>
+LOGGED IN AS
+</span>
+
+<br>
+
+<strong id="username">
+CHECKING...
+</strong>
+
+</div>
+
+<button
+class="logout-btn"
+onclick="logout()"
+>
+LOGOUT
+</button>
+
+</div>
+
+
+<div
+class="applications"
+id="applications"
+>
+
+<div class="loading">
+Хүсэлтүүдийг ачаалж байна...
+</div>
+
+</div>
+
+</main>
+
+
+<script>
+
+function escapeHtml(value){
+
+    return String(value || "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+async function checkAuth(){
+
+    try{
+
+        const response =
+            await fetch("/api/manage/me");
+
+        const data =
+            await response.json();
+
+        if(!data.authorized){
+
+            window.location.href="/auth/discord";
+
+            return false;
+        }
+
+        document.getElementById("username").innerText =
+            data.username || data.id || "AUTHORIZED";
+
+        return true;
+
+    }catch(error){
+
+        console.error(error);
+
+        window.location.href="/auth/discord";
+
+        return false;
+    }
+
+}
+
+
+async function loadApplications(){
+
+    const container =
+        document.getElementById("applications");
+
+    try{
+
+        const response =
+            await fetch("/api/manage/applications");
+
+        if(!response.ok){
+
+            container.innerHTML=`
+                <div class="empty error">
+                    ACCESS DENIED
+                </div>
+            `;
+
+            return;
+        }
+
+        const applications =
+            await response.json();
+
+        if(!applications.length){
+
+            container.innerHTML=`
+                <div class="empty">
+                    Одоогоор шинэ хүсэлт алга.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML =
+            applications.map(app => `
+
+                <div class="application-card">
+
+                    <h2>
+                        ${escapeHtml(app.discord || "Unknown")}
+                    </h2>
+
+                    <div class="info">
+
+                        <div>
+                            <strong>Steam:</strong>
+                            <a
+                                href="${escapeHtml(app.steam)}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                ${escapeHtml(app.steam)}
+                            </a>
+                        </div>
+
+                        <div>
+                            <strong>Rank:</strong>
+                            ${escapeHtml(app.rank || "-")}
+                        </div>
+
+                        <div>
+                            <strong>FACEIT:</strong>
+                            ${escapeHtml(app.faceit || "-")}
+                        </div>
+
+                        <div>
+                            <strong>Шалтгаан:</strong>
+                            ${escapeHtml(app.reason || "-")}
+                        </div>
+
+                    </div>
+
+                    <div class="actions">
+
+                        <button
+                            class="btn approve"
+                            onclick="approveApplication('${escapeHtml(app.id)}')"
+                        >
+                            ✓ ЗӨВШӨӨРӨХ
+                        </button>
+
+                        <button
+                            class="btn reject"
+                            onclick="rejectApplication('${escapeHtml(app.id)}')"
+                        >
+                            ✕ ТАТГАЛЗАХ
+                        </button>
+
+                    </div>
+
+                </div>
+
+            `).join("");
+
+    }catch(error){
+
+        console.error(error);
+
+        container.innerHTML=`
+            <div class="empty error">
+                Хүсэлтүүдийг ачаалж чадсангүй.
+            </div>
+        `;
+    }
+
+}
+
+
+async function approveApplication(id){
+
+    if(!confirm(
+        "Энэ хүсэлтийг MEMBER болгох уу?"
+    )){
+        return;
+    }
+
+    try{
+
+        const response =
+            await fetch("/api/manage/approve",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    id:id
+                })
+            });
+
+        const data =
+            await response.json();
+
+        if(!response.ok){
+
+            throw new Error(
+                data.message || "Алдаа гарлаа"
+            );
+        }
+
+        alert("✓ MEMBER болголоо!");
+
+        loadApplications();
+
+    }catch(error){
+
+        alert("✕ " + error.message);
+
+    }
+
+}
+
+
+async function rejectApplication(id){
+
+    if(!confirm(
+        "Энэ хүсэлтийг татгалзах уу?"
+    )){
+        return;
+    }
+
+    try{
+
+        const response =
+            await fetch("/api/manage/reject",{
+                method:"POST",
+                headers:{
+                    "Content-Type":"application/json"
+                },
+                body:JSON.stringify({
+                    id:id
+                })
+            });
+
+        const data =
+            await response.json();
+
+        if(!response.ok){
+
+            throw new Error(
+                data.message || "Алдаа гарлаа"
+            );
+        }
+
+        alert("✕ Хүсэлтийг татгалзлаа.");
+
+        loadApplications();
+
+    }catch(error){
+
+        alert("✕ " + error.message);
+
+    }
+
+}
+
+
+async function logout(){
+
+    try{
+
+        await fetch(
+            "/api/manage/logout",
+            {
+                method:"POST"
+            }
+        );
+
+    }catch(error){
+
+        console.error(error);
+
+    }
+
+    window.location.href="/";
+
+}
+
+
+async function init(){
+
+    const authorized =
+        await checkAuth();
+
+    if(!authorized){
+        return;
+    }
+
+    await loadApplications();
+
+}
+
+
+init();
+
+</script>
+
+</body>
+</html>

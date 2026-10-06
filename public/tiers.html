@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>TIERS — INJUSTICE</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800;900&family=Rajdhani:wght@500;600;700&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --red:#ff1744;
+    --purple:#8b35ff;
+    --bg:#050507;
+    --card:#0d0a11;
+    --text:#f5f5f5;
+    --muted:#999;
+}
+
+body{
+    min-height:100vh;
+    background:
+        radial-gradient(circle at 80% 10%,rgba(139,53,255,.18),transparent 30%),
+        radial-gradient(circle at 10% 50%,rgba(255,23,68,.14),transparent 30%),
+        var(--bg);
+    color:var(--text);
+    font-family:'Rajdhani',sans-serif;
+    overflow-x:hidden;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:.035;
+    background-image:
+        linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+    background-size:45px 45px;
+}
+
+nav{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    z-index:999;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 5%;
+    background:rgba(5,5,7,.85);
+    backdrop-filter:blur(15px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.logo-text{
+    font-family:'Orbitron';
+    font-size:22px;
+    font-weight:900;
+    letter-spacing:4px;
+}
+
+.logo-text span{
+    color:var(--red);
+}
+
+nav ul{
+    display:flex;
+    gap:22px;
+    list-style:none;
+    align-items:center;
+}
+
+nav a{
+    color:#aaa;
+    text-decoration:none;
+    font-weight:700;
+    letter-spacing:1px;
+    transition:.25s;
+}
+
+nav a:hover{
+    color:white;
+    text-shadow:0 0 15px var(--red);
+}
+
+.active{
+    color:#ff5475!important;
+}
+
+.page{
+    max-width:1250px;
+    margin:auto;
+    padding:145px 25px 80px;
+}
+
+.title{
+    text-align:center;
+    margin-bottom:45px;
+}
+
+.title small{
+    color:var(--red);
+    font-family:'Orbitron';
+    letter-spacing:4px;
+}
+
+.title h1{
+    font-family:'Orbitron';
+    font-size:48px;
+    margin-top:10px;
+}
+
+.back{
+    display:block;
+    width:max-content;
+    margin:0 auto 35px;
+    padding:11px 22px;
+    background:#111018;
+    border:1px solid #29232e;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+    font-weight:800;
+    transition:.25s;
+}
+
+.back:hover{
+    transform:translateY(-3px);
+    border-color:var(--purple);
+}
+
+/* MANAGE BOX */
+
+.manage-box{
+    max-width:850px;
+    margin:0 auto 35px;
+    padding:20px;
+    border:1px solid rgba(139,53,255,.3);
+    background:rgba(139,53,255,.08);
+    border-radius:12px;
+}
+
+.manage-box label{
+    display:block;
+    color:#aaa;
+    font-size:13px;
+    letter-spacing:2px;
+    margin-bottom:10px;
+}
+
+select{
+    width:100%;
+    padding:14px;
+    background:#0c0a0f;
+    color:white;
+    border:1px solid #302936;
+    border-radius:8px;
+    font-family:'Rajdhani';
+    font-size:16px;
+    outline:none;
+}
+
+select:focus{
+    border-color:var(--purple);
+}
+
+.assign-btn{
+    width:100%;
+    margin-top:12px;
+    padding:13px;
+    border:0;
+    border-radius:8px;
+    background:linear-gradient(100deg,#8b001d,#ff1744);
+    color:white;
+    font-family:'Rajdhani';
+    font-size:16px;
+    font-weight:800;
+    cursor:pointer;
+    transition:.25s;
+}
+
+.assign-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 30px rgba(255,23,68,.25);
+}
+
+.status{
+    text-align:center;
+    min-height:24px;
+    margin-top:12px;
+    font-weight:700;
+}
+
+/* TIERS */
+
+.tier-section{
+    margin-top:60px;
+}
+
+.tier-title{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    margin-bottom:25px;
+}
+
+.tier-title span{
+    color:var(--red);
+    font-family:'Orbitron';
+    font-size:14px;
+    letter-spacing:3px;
+}
+
+.tier-title h2{
+    font-family:'Orbitron';
+    font-size:28px;
+}
+
+.tier-line{
+    height:1px;
+    flex:1;
+    background:rgba(255,255,255,.08);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+}
+
+/* MEMBER CARD */
+
+.card{
+    display:block;
+    background:linear-gradient(
+        145deg,
+        rgba(20,17,25,.95),
+        rgba(9,8,12,.95)
+    );
+    border:1px solid rgba(255,255,255,.07);
+    border-radius:16px;
+    padding:25px;
+    transition:.25s;
+    text-align:center;
+    text-decoration:none;
+    color:white;
+    cursor:pointer;
+}
+
+.card:hover{
+    transform:translateY(-6px);
+    border-color:rgba(255,23,68,.55);
+    box-shadow:
+        0 15px 50px rgba(0,0,0,.45),
+        0 0 25px rgba(255,23,68,.08);
+}
+
+.avatar{
+    width:90px;
+    height:90px;
+    object-fit:cover;
+    border-radius:50%;
+    border:2px solid var(--red);
+    margin:0 auto 15px;
+    display:block;
+    box-shadow:0 0 20px rgba(255,23,68,.25);
+}
+
+.name{
+    color:white;
+    font-family:'Orbitron';
+    font-size:15px;
+    word-break:break-word;
+}
+
+.card:hover .name{
+    color:var(--red);
+}
+
+.role{
+    margin-top:8px;
+    color:#a56cff;
+    font-size:12px;
+    letter-spacing:2px;
+}
+
+.empty{
+    grid-column:1/-1;
+    text-align:center;
+    color:#666;
+    padding:35px;
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:15px;
+    background:#0d0a11;
+}
+
+.loading{
+    text-align:center;
+    color:#777;
+    padding:50px;
+}
+
+.error{
+    color:#ff1744;
+}
+
+/* MOBILE */
+
+@media(max-width:1050px){
+
+    nav ul{
+        gap:12px;
+    }
+
+    nav a{
+        font-size:13px;
+    }
+
+    .grid{
+        grid-template-columns:repeat(3,1fr);
+    }
+}
+
+@media(max-width:800px){
+
+    nav{
+        padding:16px 4%;
+    }
+
+    nav ul{
+        gap:9px;
+    }
+
+    nav a{
+        font-size:11px;
+    }
+
+    .logo-text{
+        font-size:17px;
+        letter-spacing:2px;
+    }
+
+    .grid{
+        grid-template-columns:1fr 1fr;
+    }
+
+    .title h1{
+        font-size:38px;
+    }
+}
+
+@media(max-width:500px){
+
+    nav{
+        overflow-x:auto;
+    }
+
+    nav ul{
+        flex-shrink:0;
+    }
+
+    .page{
+        padding-left:15px;
+        padding-right:15px;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .tier-title h2{
+        font-size:22px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV -->
+
+<nav>
+
+<div class="logo-text">
+INJUST<span>ICE</span>
+</div>
+
+<ul>
+
+<li>
+<a href="/">
+НҮҮР
+</a>
+</li>
+
+<li>
+<a href="/#members">
+ГИШҮҮД
+</a>
+</li>
+
+<li>
+<a href="/#rules">
+ДҮРЭМ
+</a>
+</li>
+
+<li>
+<a href="/#apply">
+ХҮСЭЛТ
+</a>
+</li>
+
+<li>
+<a
+href="https://discord.gg/kED9f66v2"
+target="_blank"
+>
+DISCORD
+</a>
+</li>
+
+<!-- TIERS -->
+
+<li>
+<a href="/tiers.html" class="active">
+TIERS
+</a>
+</li>
+
+<!-- MANAGE -->
+
+<li>
+<a href="/manage.html">
+MANAGE
+</a>
+</li>
+
+</ul>
+
+</nav>
+
+
+<main class="page">
+
+<div class="title">
+
+<small>
+INJUSTICE CLAN
+</small>
+
+<h1>
+TIERS
+</h1>
+
+</div>
+
+
+<a
+href="/"
+class="back"
+>
+← BACK TO HOME
+</a>
+
+
+<!--
+    ЭНЭ ХЭСЭГ ЗӨВХӨН MANAGE ЭРХТЭЙ
+    ХҮНД ХАРАГДАНА.
+-->
+
+<div
+class="manage-box"
+id="manageBox"
+style="display:none;"
+>
+
+<label>
+MEMBER СОНГОХ
+</label>
+
+<select id="memberSelect">
+
+<option value="">
+-- MEMBER СОНГОХ --
+</option>
+
+</select>
+
+
+<label style="margin-top:18px;">
+TIER СОНГОХ
+</label>
+
+<select id="tierSelect">
+
+<option value="">
+-- TIER СОНГОХ --
+</option>
+
+<option value="1">
+TIER 1
+</option>
+
+<option value="2">
+TIER 2
+</option>
+
+<option value="3">
+TIER 3
+</option>
+
+<option value="4">
+TIER 4
+</option>
+
+<option value="5">
+TIER 5
+</option>
+
+</select>
+
+
+<button
+class="assign-btn"
+onclick="assignTier()"
+>
+TIER ОНООХ
+</button>
+
+<div
+class="status"
+id="status"
+></div>
+
+</div>
+
+
+<!--
+    ЭНЭ ХЭСЭГ БҮХ ХҮНД ХАРАГДАНА.
+    LOGIN ХЭРЭГГҮЙ.
+-->
+
+<div id="tiersContainer">
+
+<div class="loading">
+Members ачаалж байна...
+</div>
+
+</div>
+
+</main>
+
+
+<script>
+
+const fallbackAvatar =
+"https://cdn.discordapp.com/attachments/1553721738704199720/1553722012214624286/IMG_5654.jpg";
+
+
+let allMembers = [];
+
+
+/* HTML хамгаалалт */
+
+function escapeHtml(value){
+
+    return String(value || "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+/*
+    TIER:
+    "TIER 1" -> "1"
+    "tier 2" -> "2"
+    "3"      -> "3"
+*/
+
+function normalizeTier(value){
+
+    if(!value){
+        return "";
+    }
+
+    const text =
+        String(value)
+            .trim()
+            .toUpperCase();
+
+    const match =
+        text.match(/TIER\s*([1-5])/);
+
+    if(match){
+        return match[1];
+    }
+
+    if(/^[1-5]$/.test(text)){
+        return text;
+    }
+
+    return "";
+}
+
+
+/*
+    MANAGE эрх шалгана.
+
+    Хэрэв эрхтэй бол:
+    MEMBER сонгох
+    TIER сонгох
+    TIER оноох
+
+    харагдана.
+
+    Эрхгүй хүн:
+    зөвхөн TIER 1-5 харна.
+*/
+
+async function checkManage(){
+
+    try{
+
+        const response =
+            await fetch("/api/manage/me");
+
+        if(!response.ok){
+            return false;
+        }
+
+        const data =
+            await response.json();
+
+        if(data.authorized){
+
+            document.getElementById(
+                "manageBox"
+            ).style.display="block";
+
+            return true;
+        }
+
+        return false;
+
+    }catch(error){
+
+        console.error(
+            "Manage check error:",
+            error
+        );
+
+        return false;
+    }
+}
+
+
+/*
+    MEMBER CARD
+
+    Card дээр дарвал Steam profile
+    шинэ tab дээр нээгдэнэ.
+*/
+
+function createMemberCard(member){
+
+    const avatar =
+        member.avatar || fallbackAvatar;
+
+    const name =
+        member.name || "Unknown";
+
+    const steam =
+        member.steam || "#";
+
+    const tier =
+        normalizeTier(member.tier);
+
+    return `
+
+        <a
+            class="card"
+            href="${escapeHtml(steam)}"
+            target="_blank"
+            rel="noopener noreferrer"
+        >
+
+            <img
+                class="avatar"
+                src="${escapeHtml(avatar)}"
+                alt="${escapeHtml(name)}"
+                onerror="this.src='${fallbackAvatar}'"
+            >
+
+            <div class="name">
+                ${escapeHtml(name)}
+            </div>
+
+            <div class="role">
+                TIER ${tier}
+            </div>
+
+        </a>
+
+    `;
+}
+
+
+/*
+    TIER 1
+    TIER 2
+    TIER 3
+    TIER 4
+    TIER 5
+
+    бүгдийг харуулна.
+*/
+
+function renderTiers(members){
+
+    const container =
+        document.getElementById(
+            "tiersContainer"
+        );
+
+    let html = "";
+
+    for(let tier = 1; tier <= 5; tier++){
+
+        const tierMembers =
+            members.filter(member => {
+
+                const role =
+                    String(member.role || "")
+                        .trim()
+                        .toUpperCase();
+
+                if(role !== "MEMBER"){
+                    return false;
+                }
+
+                return (
+                    normalizeTier(member.tier) ===
+                    String(tier)
+                );
+
+            });
+
+
+        html += `
+
+            <section class="tier-section">
+
+                <div class="tier-title">
+
+                    <span>
+                        TIER ${tier}
+                    </span>
+
+                    <h2>
+                        TIER ${tier}
+                    </h2>
+
+                    <div class="tier-line"></div>
+
+                </div>
+
+
+                <div class="grid">
+
+                    ${
+                        tierMembers.length > 0
+
+                        ?
+
+                        tierMembers
+                            .map(createMemberCard)
+                            .join("")
+
+                        :
+
+                        `
+                        <div class="empty">
+
+                            TIER ${tier}-т
+                            одоогоор MEMBER алга.
+
+                        </div>
+                        `
+                    }
+
+                </div>
+
+            </section>
+
+        `;
+    }
+
+    container.innerHTML = html;
+}
+
+
+/*
+    MANAGE MEMBER SELECT
+*/
+
+function populateMembers(members){
+
+    const select =
+        document.getElementById(
+            "memberSelect"
+        );
+
+    if(!select){
+        return;
+    }
+
+    const memberList =
+        members.filter(member => {
+
+            return (
+                String(member.role || "")
+                    .trim()
+                    .toUpperCase() ===
+                "MEMBER"
+            );
+
+        });
+
+
+    select.innerHTML = `
+
+        <option value="">
+            -- MEMBER СОНГОХ --
+        </option>
+
+        ${
+            memberList
+                .map(member => {
+
+                    const tier =
+                        normalizeTier(
+                            member.tier
+                        );
+
+                    return `
+
+                        <option
+                            value="${escapeHtml(
+                                member.steam
+                            )}"
+                        >
+
+                            ${escapeHtml(
+                                member.name ||
+                                member.steam
+                            )}
+
+                            ${
+                                tier
+                                ? ` — TIER ${tier}`
+                                : ""
+                            }
+
+                        </option>
+
+                    `;
+
+                })
+                .join("")
+        }
+
+    `;
+}
+
+
+/*
+    БҮХ ГИШҮҮДИЙГ API-аас авах
+*/
+
+async function loadMembers(){
+
+    try{
+
+        const response =
+            await fetch(
+                "/api/members"
+            );
+
+        if(!response.ok){
+
+            throw new Error(
+                "Members API error"
+            );
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if(!Array.isArray(data)){
+
+            throw new Error(
+                "Members data буруу байна"
+            );
+        }
+
+
+        allMembers = data;
+
+
+        /* БҮХ ХҮНД ХАРАГДАНА */
+
+        renderTiers(
+            allMembers
+        );
+
+
+        /* MANAGE ХЭСЭГ */
+
+        populateMembers(
+            allMembers
+        );
+
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById(
+            "tiersContainer"
+        ).innerHTML = `
+
+            <div class="loading error">
+
+                Members ачаалж чадсангүй.
+
+            </div>
+
+        `;
+    }
+
+}
+
+
+/*
+    TIER ОНООХ
+*/
+
+async function assignTier(){
+
+    const steam =
+        document.getElementById(
+            "memberSelect"
+        ).value;
+
+    const tier =
+        document.getElementById(
+            "tierSelect"
+        ).value;
+
+    const status =
+        document.getElementById(
+            "status"
+        );
+
+
+    if(!steam){
+
+        status.style.color =
+            "#ff1744";
+
+        status.innerText =
+            "MEMBER сонгоно уу.";
+
+        return;
+    }
+
+
+    if(!tier){
+
+        status.style.color =
+            "#ff1744";
+
+        status.innerText =
+            "TIER сонгоно уу.";
+
+        return;
+    }
+
+
+    status.style.color =
+        "#aaa";
+
+    status.innerText =
+        "Tier хадгалж байна...";
+
+
+    try{
+
+        const response =
+            await fetch(
+                "/api/manage/tiers",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:JSON.stringify({
+                        steam:steam,
+                        tier:tier
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if(!response.ok){
+
+            throw new Error(
+                data.message ||
+                "Алдаа гарлаа"
+            );
+        }
+
+
+        status.style.color =
+            "#7cff8a";
+
+        status.innerText =
+            `✓ TIER ${tier} амжилттай оноолоо.`;
+
+
+        /*
+            Хадгалсны дараа
+            бүх TIER дахин шинэчлэгдэнэ.
+        */
+
+        await loadMembers();
+
+
+        document.getElementById(
+            "tierSelect"
+        ).value = "";
+
+
+    }catch(error){
+
+        console.error(error);
+
+        status.style.color =
+            "#ff1744";
+
+        status.innerText =
+            "✕ " + error.message;
+
+    }
+
+}
+
+
+/*
+    START
+*/
+
+async function init(){
+
+    /*
+        Manage эрх байгаа эсэхийг шалгана.
+        Гэхдээ эрхгүй байсан ч
+        TIER-үүдийг loadMembers() хийнэ.
+    */
+
+    await checkManage();
+
+    await loadMembers();
+
+}
+
+
+init();
+
+</script>
+
+</body>
+</html>
